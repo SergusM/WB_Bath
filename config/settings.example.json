@@ -1,0 +1,41 @@
+{
+  "manual": {
+    "spa": {
+      "floor": 0,
+      "bench": 0,
+      "wall_low": 0,
+      "wall_mid": 0,
+      "wall_top": 0,
+      "ceiling": 0,
+      "stove": 0
+    },
+    "steam": {
+      "floor": 0,
+      "bench": 0,
+      "wall_low": 0,
+      "wall_mid": 0,
+      "wall_top": 0,
+      "ceiling": 0,
+      "stove": 0
+    }
+  },
+  "waterfall": {
+    "duration": 15,
+    "schedule": {
+      "enabled": false,
+      "times": [
+        "09:00",
+        "21:30"
+      ],
+      "days": [
+        "mon",
+        "tue",
+        "wed",
+        "thu",
+        "fri",
+        "sat",
+        "sun"
+      ]
+    }
+  }
+}

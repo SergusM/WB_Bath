@@ -1,0 +1,17 @@
+[Unit]
+Description=Bath controller (python2wb)
+After=network.target mosquitto.service wb-mqtt-serial.service
+Wants=mosquitto.service
+
+[Service]
+Type=simple
+WorkingDirectory=/mnt/data/wb_bath
+ExecStart=/usr/bin/python3 -m bath.main --host localhost
+Restart=always
+RestartSec=5
+# SIGTERM -> нагреватели выключаются в BathController.shutdown()
+KillSignal=SIGTERM
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target

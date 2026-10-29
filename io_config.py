@@ -143,13 +143,24 @@ class HeatZone:
 HEATER_HYSTERESIS = 1.0          # °C, вкл при T < SP-1, выкл при T > SP+1
 ZONE_SENSOR_CORRECTION = -5.0    # °C, поправка к датчикам зон 1–20
 ZONE_MAX_TEMP = 90               # °C, отсечка зоны нагрева
-STEAM_GEN_MAX_TEMP = 460.0       # °C, отсечка испарителя и парогенератора
+STEAM_GEN_MAX_TEMP = 470.0       # °C, отсечка испарителя и парогенератора
 ZAPARNIK_SETPOINT = 130.0        # °C
 ZAPARNIK_MAX_TEMP = 150.0        # °C отсечка запарника
 VENT_AUTO_RETURN_S = 15 * 60     # из «Проветривания» назад в «Пропарку»
 FACE_FAN_AUTO_OFF_S = 15 * 60    # автоотключение лицевого фена
 LONG_PRESS_RGB_S = 1.0           # удержание кнопки RGB -> выкл
 LONG_PRESS_MASTER_S = 1.5        # удержание мастер-клавиши -> выключить всё
+HEATER_ON_DELAY_S = 0.1          # пауза между командами включения нагревателей (контакторы)
+SENSOR_STALE_S = 60              # нет показаний дольше -> датчик считается неисправным
+RELAY_RESYNC_S = 10              # период сверки команд реле с фактическим состоянием
+WATERFALL_DEFAULT_S = 7         # длительность пролива обливного по умолчанию
+WATERFALL_MAX_S = 15
+ZONE_MAX_SETPOINT = 85           # предел ручной уставки зоны, °C (ниже ZONE_MAX_TEMP)
+STOVE_MAX_SETPOINT = 450         # предел ручной уставки печки, °C (ниже STEAM_GEN_MAX_TEMP)
+STATE_PUBLISH_S = 30             # период публикации полного состояния без изменений
+
+# MQTT API для интерфейса: <APP_PREFIX>/cmd, /state, /ack, /event
+APP_PREFIX = "/app"
 
 # Стандартные уставки предустановленных режимов (функция Main control в flows.json).
 # Режим применяется к СПА и к парной по отдельности. Печка есть только в парной,
@@ -274,9 +285,9 @@ STEAM_ZONES = [
 # (сдвиг индексов, см. IO_list.md п. 3.1). Здесь взят правильный датчик IN 4.
 ZONE_ZAPARNIK = HeatZone(20, "Запарник", None, None, R_ZAPARNIK_HEAT, T_ZAPARNIK,
                          ZAPARNIK_MAX_TEMP)
-ZONE_EVAPORATOR = HeatZone(22, "Испаритель", Room.STEAM, ZoneKind.STOVE,R_EVAPORATOR, T_EVAPORATOR,
+ZONE_EVAPORATOR = HeatZone(22, "Испаритель", Room.STEAM, ZoneKind.STOVE, R_EVAPORATOR, T_EVAPORATOR,
                            STEAM_GEN_MAX_TEMP)
-ZONE_STEAM_GENERATOR = HeatZone(23, "Парогенератор", Room.STEAM, ZoneKind.STOVE,R_STEAM_GENERATOR,
+ZONE_STEAM_GENERATOR = HeatZone(23, "Парогенератор", Room.STEAM, ZoneKind.STOVE, R_STEAM_GENERATOR,
                                 T_STEAM_GENERATOR, STEAM_GEN_MAX_TEMP)
 
 ALL_ZONES = [*SPA_ZONES, *STEAM_ZONES,

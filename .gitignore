@@ -218,3 +218,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Настройки контроллера на объекте
+config/settings.json
+config/settings.json.tmp
