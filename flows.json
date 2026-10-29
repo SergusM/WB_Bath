@@ -1,0 +1,4164 @@
+[
+    {
+        "id": "70a8e5dd82d8b4b1",
+        "type": "tab",
+        "label": "Поток 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "c12bdca1fa59a76e",
+        "type": "function",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "Main control",
+        "func": "var main = context.get('main') || { heaters:        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], \n                                    tempsensors:    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], \n                                    setpoints:      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  \n                                    usersetpoints:  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],\n                                    Shedule: { hours: 0, minutes: 0, mon: 'false', tue: 'false', wed: 'false', thu: 'false', fri: 'false', sat: 'false', sun: 'false' },\n                                    TP_SPA: \"off\",\n                                    TP_SR: \"off\",\n                                    TP: \"off\" };\nmain.buttons = global.get('buttons');\nvar EN = context.get('EN') || 0;\n//var heaters = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];\n//var tempsensors = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];\n//var setpoints = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];\n\nvar TP = msg.topic;\n\nvar PL = msg.payload;\n\n/*\nЗона 1 Потельня лежак 1\nЗона 2 Потельня лежак 2\nЗона 3 Потельня лежак 3\nЗона 4 Потельня лежак 4\nЗона 5 Потельня лежак 5\nЗона 6 Потельня лежак 6\nЗона 7 Потельня пол\nЗона 8 Потельня стена низ\nЗона 9 Потельня стена середина\nЗона 10 Потельня стена верх\nЗона 11 Потельня потолок 1\nЗона 12 Потельня потолок 2\nЗона 13 Парная Лежак 1\nЗона 14 Парная лежак 2\nЗона 15 Парная лежак 3\nЗона 16 Парная пол\nЗона 17 Парная стена низ\nЗона 18 Парная стена середина\nЗона 19 Парная стена верх\nЗона 20 Парная потолок\n\n1-6 (1 уставка Потельня лежак)\n7 (2 уставка потельня пол)\n8-10 (3 уставка потельня стена)\n11-12 (4 уставка потельня потолок)\n13-15 (5 уставка парная лежак)\n16 (6 уставка парная пол)\n17-19 (7 уставка парная стена)\n20 (8 уставка парная потолок)\n*/\n//context.set('main',main );\n\nif (TP == \"tempsensors\"){\n    main.tempsensors = PL.tempsensors;\n    main.errormsg = PL.errormsg;\n    main.timecatch = PL.timecatch;\n    context.set('main', main);\n}\nif (TP == \"heaters\"){\n    main.heaters = PL;\n    context.set('main', main);\n}\nif (TP == \"usersetpoints\"){\n    main.usersetpoints = PL;\n    context.set('main', main);\n    //  for (let i = 0; i < 25; i++)\n    //     main.setpoints[i] = main.usersetpoints[i];\n    \n    context.set('main', main);\n}\nif (TP == \"power_consumption\"){\n    main.power_consumption = PL;\n    context.set('main', main);\n}\nif (TP == \"Shedule\"){\n    main.Shedule = PL;\n    context.set('main', main);\n}\n\n/*\nbeach_at_sunset\nbeach\nIR_sauna\nhamam\nSPA\nsteam_bath\nrussian_bath\n*/\nif (main.TP == \"user\" && TP == \"off\"){\nmain.TP = TP;\nmain.TP_SPA = TP;\nmain.TP_SR = TP;\ncontext.set('main', main);\n}\n// Предустановленные режимы (PL == 0)\nif (TP == \"off\" && PL == 0) { //Выкл СПА-зону\n    for (let i = 0; i < 12; i++)\n        main.setpoints[i] = 0;\n\n    main.TP_SPA = TP;\n   \n\n    context.set('main', main);\n}\n\n// вечерний пляж (PL == 0)\nif (TP == \"beach_at_sunset\" && PL == 0) {\n    for (let i = 0; i <= 11; i++)\n        main.setpoints[i] = 0;\n    for (let i = 0; i <= 5; i++)\n        main.setpoints[i] = 42; // лежаки\n    main.setpoints[6] = 36; // пол\n    main.setpoints[7] = 42; // ст.низ\n    main.setpoints[8] = Number(main.tempsensors[8].toFixed(0));  // ст.сер\n    main.setpoints[9] = Number(main.tempsensors[9].toFixed(0)); // ст.верх\n    main.setpoints[10] = Number(main.tempsensors[10].toFixed(0)); // потолок\n    main.setpoints[11] = Number(main.tempsensors[11].toFixed(0)); // потолок\n    main.TP_SPA = TP;\n    main.TP = \"\";\n    context.set('main', main);\n}\n\n// пляж (PL == 0)\nif (TP == \"beach\" && PL == 0) {\n    for (let i = 0; i <= 11; i++) // сброс\n        main.setpoints[i] = 0;\n    main.setpoints[21] = 0;\n    for (let i = 0; i <= 5; i++)\n        main.setpoints[i] = 42; // лежаки\n    main.setpoints[6] = 42; // пол\n    main.setpoints[7] = 42; // ст.низ\n    main.setpoints[8] = 42; // ст.сер\n    main.setpoints[9] = 42; // ст.верх\n    main.setpoints[10] = 42; // потолок\n    main.setpoints[11] = 42; // потолок\n    main.TP_SPA = TP;\n    main.TP = \"\";\n    context.set('main', main);\n}\n\n// ИК сауна (PL == 0)\nif (TP == \"IR_sauna\" && PL == 0) {\n    for (let i = 0; i <= 11; i++) // сброс\n        main.setpoints[i] = 0;\n    main.setpoints[21] = 0;\n    for (let i = 0; i <= 5; i++)\n        main.setpoints[i] = 42; // лежаки\n    main.setpoints[6] = 42; // пол\n    main.setpoints[7] = 44; // ст.низ\n    main.setpoints[8] = 52; // ст.сер\n    main.setpoints[9] = 56; // ст.верх\n    main.setpoints[10] = 60; // потолок\n    main.setpoints[11] = 60; // потолок\n    main.TP_SPA = TP;\n    main.TP = \"\";\n    context.set('main', main);\n}\n\n// Хамам (PL == 0)\nif (TP == \"hamam\" && PL == 0) {\n    for (let i = 0; i <= 11; i++) // сброс\n        main.setpoints[i] = 0;\n    main.setpoints[21] = 0;\n    for (let i = 0; i <= 5; i++)\n        main.setpoints[i] = 42; // лежаки\n    main.setpoints[6] = 42; // пол\n    main.setpoints[7] = 42; // ст.низ\n    main.setpoints[8] = Number(main.tempsensors[8].toFixed(0));  // ст.сер\n    main.setpoints[9] = Number(main.tempsensors[9].toFixed(0)); // ст.верх\n    main.setpoints[10] = Number(main.tempsensors[10].toFixed(0)); // потолок\n    main.setpoints[11] = Number(main.tempsensors[11].toFixed(0)); // потолок\n\n    main.TP_SPA = TP;\n    main.TP = \"\";\n    context.set('main', main);\n}\n\n// СПА (PL == 0)\nif (TP == \"SPA\" && PL == 0) {\n    for (let i = 0; i <= 11; i++) // сброс\n        main.setpoints[i] = 0;\n    main.setpoints[21] = 0;\n    for (let i = 0; i <= 5; i++)\n        main.setpoints[i] = 42; // лежаки\n    main.setpoints[6] = 42; // пол\n    main.setpoints[7] = 48; // ст.низ\n    main.setpoints[8] = 52; // ст.сер\n    main.setpoints[9] = 56; // ст.верх\n    main.setpoints[10] = 58; // потолок\n    main.setpoints[10] = 58; // потолок\n\n    main.TP_SPA = TP;\n    main.TP = \"\";\n    context.set('main', main);\n}\n\n// Паровая баня (PL == 0)\nif (TP == \"steam_bath\" && PL == 0) {\n    for (let i = 0; i <= 11; i++) // сброс\n        main.setpoints[i] = 0;\n    main.setpoints[21] = 0;\n    for (let i = 0; i <= 5; i++)\n        main.setpoints[i] = 42; // лежаки\n    main.setpoints[6] = 42; // пол\n    main.setpoints[7] = 44; // ст.низ\n    main.setpoints[8] = 52; // ст.сер\n    main.setpoints[9] = 56; // ст.верх\n    main.setpoints[10] = 60; // потолок\n    main.setpoints[11] = 60; // потолок\n\n    main.TP_SPA = TP;\n    main.TP = \"\";\n    context.set('main', main);\n}\n\n// Русская баня (PL == 0)\nif (TP == \"russian_bath\" && PL == 0) {\n    for (let i = 0; i <= 11; i++) // сброс\n        main.setpoints[i] = 0;\n    main.setpoints[21] = 0;\n    for (let i = 0; i <= 5; i++)\n        main.setpoints[i] = 42; // лежаки\n    main.setpoints[6] = 42; // пол\n    main.setpoints[7] = 54; // ст.низ\n    main.setpoints[8] = 66; // ст.сер\n    main.setpoints[9] = 76; // ст.верх\n    main.setpoints[10] = 80; // потолок\n    main.setpoints[11] = 80; // потолок\n\n    main.TP_SPA = TP;\n    main.TP = \"\";\n    context.set('main', main);\n}\n\n\n// Предустановленные режимы (PL == 1)\nif (TP == \"off\" && PL == 1) {//Выкл Парную\n    for (let i = 12; i <= 20; i++) // сброс\n        main.setpoints[i] = 0;\n    main.setpoints[22] = 0; // парогенератор\n    main.setpoints[23] = 0;\n    main.TP_SR = TP;\n    \n\n    context.set('main', main);\n}\n\n// вечерний пляж (PL == 1)\nif (TP == \"beach_at_sunset\" && PL == 1) {\n    for (let i = 12; i <= 20; i++) // сброс\n        main.setpoints[i] = 0;\n\n    for (let i = 12; i <= 14; i++)\n        main.setpoints[i] = 42; // лежаки\n    main.setpoints[15] = 36; // пол\n    main.setpoints[16] = 42; // ст.низ\n    main.setpoints[17] = Number(main.tempsensors[17].toFixed(0)); // ст.сер\n    main.setpoints[18] = Number(main.tempsensors[18].toFixed(0)); // ст.верх\n    main.setpoints[19] = Number(main.tempsensors[19].toFixed(0)); // потолок\n    main.setpoints[22] = 0; // парогенератор\n    main.setpoints[23] = 0;\n    main.TP_SR = TP;\n    main.TP = \"\";\n    context.set('main', main);\n}\n\n// пляж (PL == 1)\nif (TP == \"beach\" && PL == 1) {\n    for (let i = 12; i <= 20; i++) // сброс\n        main.setpoints[i] = 0;\n\n    for (let i = 12; i <= 14; i++)\n        main.setpoints[i] = 42; // лежаки\n    main.setpoints[15] = 42; // пол\n    main.setpoints[16] = 42; // ст.низ\n    main.setpoints[17] = 42; // ст.сер\n    main.setpoints[18] = 42; // ст.верх\n    main.setpoints[19] = 42; // потолок\n    main.setpoints[22] = 0; // парогенератор\n    main.setpoints[23] = 0;\n    main.TP_SR = TP;\n    main.TP = \"\";\n    context.set('main', main);\n}\n\n// ИК сауна (PL == 1)\nif (TP == \"IR_sauna\" && PL == 1) {\n    for (let i = 12; i <= 20; i++) // сброс\n        main.setpoints[i] = 0;\n    main.setpoints[21] = 0;\n    for (let i = 12; i <= 14; i++)\n        main.setpoints[i] = 42; // лежаки\n    main.setpoints[15] = 42; // пол\n    main.setpoints[16] = 44; // ст.низ\n    main.setpoints[17] = 52; // ст.сер\n    main.setpoints[18] = 56; // ст.верх\n    main.setpoints[19] = 60; // потолок\n    main.setpoints[22] = 0; // парогенератор\n    main.setpoints[23] = 0;\n    main.TP_SR = TP;\n    main.TP = \"\";\n    context.set('main', main);\n}\n\n// Хамам (PL == 1)\nif (TP == \"hamam\" && PL == 1) {\n    for (let i = 12; i <= 20; i++) // сброс\n        main.setpoints[i] = 0;\n    main.setpoints[21] = 0;\n    for (let i = 12; i <= 14; i++)\n        main.setpoints[i] = 42; // лежаки\n    main.setpoints[15] = 42; // пол\n    main.setpoints[16] = 42; // ст.низ\n    main.setpoints[17] = Number(main.tempsensors[17].toFixed(0)); // ст.сер\n    main.setpoints[18] = Number(main.tempsensors[18].toFixed(0)); // ст.верх\n    main.setpoints[19] = Number(main.tempsensors[19].toFixed(0)); // потолок\n    main.setpoints[22] = 250; // парогенератор\n    main.setpoints[23] = 250;\n    main.TP_SR = TP;\n    main.TP = \"\";\n    context.set('main', main);\n}\n\n// СПА (PL == 1)\nif (TP == \"SPA\" && PL == 1) {\n    for (let i = 12; i <= 20; i++) // сброс\n        main.setpoints[i] = 0;\n    main.setpoints[21] = 0;\n    for (let i = 12; i <= 14; i++)\n        main.setpoints[i] = 42; // лежаки\n    main.setpoints[15] = 42; // пол\n    main.setpoints[16] = 48; // ст.низ\n    main.setpoints[17] = 52; // ст.сер\n    main.setpoints[18] = 56; // ст.верх\n    main.setpoints[19] = 58; // потолок\n    main.setpoints[22] = 0; // парогенератор\n    main.setpoints[23] = 0; // парогенератор\n    main.TP_SR = TP;\n    main.TP = \"\";\n    context.set('main', main);\n}\n\n// Паровая баня (PL == 1)\nif (TP == \"steam_bath\" && PL == 1) {\n    for (let i = 12; i <= 20; i++) // сброс\n        main.setpoints[i] = 0;\n    main.setpoints[21] = 0;\n    for (let i = 12; i <= 14; i++)\n        main.setpoints[i] = 42; // лежаки\n    main.setpoints[15] = 42; // пол\n    main.setpoints[16] = 44; // ст.низ\n    main.setpoints[17] = 52; // ст.сер\n    main.setpoints[18] = 56; // ст.верх\n    main.setpoints[19] = 60; // потолок\n    main.setpoints[22] = 350; // парогенератор\n    main.setpoints[23] = 350;\n    main.TP_SR = TP;\n    main.TP = \"\";\n    context.set('main', main);\n}\n\n// Русская баня (PL == 1)\nif (TP == \"russian_bath\" && PL == 1) {\n    for (let i = 12; i <= 20; i++) // сброс\n        main.setpoints[i] = 0;\n    main.setpoints[21] = 0;\n    for (let i = 12; i <= 14; i++)\n        main.setpoints[i] = 42; // лежаки\n    main.setpoints[15] = 42; // пол\n    main.setpoints[16] = 54; // ст.низ\n    main.setpoints[17] = 66; // ст.сер\n    main.setpoints[18] = 76; // ст.верх\n    main.setpoints[19] = 80; // потолок\n    main.setpoints[22] = 450; // парогенератор\n    main.setpoints[23] = 450; // парогенератор\n    main.TP_SR = TP;\n    main.TP = \"\";\n    context.set('main', main);\n}\n\nif (TP == \"offoff\" && PL == 1) {\n    \n    for (let i = 0; i < 25; i++)\n        main.setpoints[i] = 0;\n    main.TP = \"off\";\n    main.TP_SPA = \"off\";\n    main.TP_SR = \"off\";\n    context.set('main', main);\n}\n\nif (TP == \"user\") {\n    for (let i = 0; i < 25; i++)\n        main.setpoints[i] = main.usersetpoints[i];\n    main.TP = TP;\n    main.TP_SPA = TP;\n    main.TP_SR = TP;\n    context.set('main', main);\n}\n\nif (TP == \"Settings\") {\n    \n    main.TP == TP ?  main.TP = \"\" :  main.TP = TP;\n\n    context.set('main', main);\n}\n\nif (TP == \"waterfallsettings\") {\n    \n    main.TP == TP ?  main.TP = \"\" :  main.TP = TP;\n\n    context.set('main', main);\n}\n\nif (TP == \"Danger\") {\n\n    main.TP = TP;\n    context.set('main', main);\n}\n\nif (TP == \"Perspirationroom_sunbed_setpoint\"){\n    for (let i = 0; i <= 5; i++) {\n     main.setpoints[i] = PL;\n     context.set('main', main);\n}\n}\nif (TP == \"Perspirationroom_floor_setpoint\"){\n     main.setpoints[6] = PL;\n     context.set('main', main);\n}\n\nif (TP == \"Perspirationroom_wall_setpoint\"){\n     for (let i = 7; i <= 9; i++)\n     main.setpoints[i] = PL;\n     context.set('main', main);\n}\nif (TP == \"Perspirationroom_ceiling_setpoint\"){\n    \n     main.setpoints[10] = PL;\n     context.set('main', main);\n}\n\n\n//Задаем в парной температуру\n/*\nfor (let i = 12; i <= 14; i++)\n    main.setpoints[i] = main.setpoints[0];//лежаки\n\nmain.setpoints[19] = main.setpoints[10];//потолок\nmain.setpoints[18] = main.setpoints[9];//  стена верх\nmain.setpoints[17] = main.setpoints[8];// стена середина\nmain.setpoints[16] = main.setpoints[7];//стена низ\nmain.setpoints[15] = main.setpoints[6];//пол*/\nmain.setpoints[21] = 130;\n\n//Включаем нагреватели по уставке\n\nfor (let i = 0; i <= 23; i++) {\n    if (main.setpoints[i] - 1 > main.tempsensors[i] && main.setpoints[i] !== 0 && main.tempsensors[i] !== \"Err\")\n    main.heaters[i] = 1;\n    if (1 + main.setpoints[i] < main.tempsensors[i] || main.setpoints[i] == 0 && main.tempsensors[i] == \"Err\")\n    main.heaters[i] = 0;\n    context.set('main', main);\n} \nif (!main.heaters[10]||!main.heaters[11]){\n    main.heaters[10] = 0;\n    main.heaters[11] = 0;\n}\nif (main.tempsensors[22] > 420 || main.tempsensors[23]>420) {\n    main.heaters[22] = 0;\n    main.heaters[23] = 0;\n\n}\n\n\n\nvar msg1 = { topic: \"/devices/wb-gpio/controls/EXT2_K4/on\", payload: main.heaters[0] } ;//Зона 1 Потельня лежак 1\nvar msg2 = { topic: \"/devices/wb-gpio/controls/EXT2_K5/on\", payload: main.heaters[1] };//Зона 2 Потельня лежак 2\nvar msg3 = { topic: \"/devices/wb-gpio/controls/EXT2_K6/on\", payload: main.heaters[2] };//Зона 3 Потельня лежак 3\nvar msg4 = { topic: \"/devices/wb-gpio/controls/EXT2_K7/on\", payload: main.heaters[3] };//Зона 4 Потельня лежак 4\nvar msg5 = { topic: \"/devices/wb-gpio/controls/EXT2_K8/on\", payload: main.heaters[4] };//Зона 5 Потельня лежак 5\nvar msg6 = { topic: \"/devices/wb-gpio/controls/EXT3_K1/on\", payload: main.heaters[5] };//Зона 6 Потельня лежак 6\nvar msg7 = { topic: \"/devices/wb-gpio/controls/EXT3_K2/on\", payload: main.heaters[6] };//Зона 7 Потельня пол\nvar msg8 = { topic: \"/devices/wb-gpio/controls/EXT3_K3/on\", payload: main.heaters[7] };//Зона 8 Потельня стена низ\nvar msg9 = { topic: \"/devices/wb-gpio/controls/EXT3_K4/on\", payload: main.heaters[8] };//Зона 9 Потельня стена середина\nvar msg10 = { topic: \"/devices/wb-gpio/controls/EXT3_K5/on\", payload: main.heaters[9] };//Зона 10 Потельня стена верх\nvar msg11 = { topic: \"/devices/wb-gpio/controls/EXT3_K6/on\", payload: main.heaters[10] };//Зона 11 Потельня потолок 1 душ\nvar msg12 = { topic: \"/devices/wb-gpio/controls/EXT3_K7/on\", payload: main.heaters[11] };//Зона 12 Потельня потолок 2\nvar msg13 = { topic: \"/devices/wb-gpio/controls/EXT3_K8/on\", payload: main.heaters[12] };//Зона 13 Парная Лежак 1\nvar msg14 = { topic: \"/devices/wb-gpio/controls/EXT4_K1/on\", payload: main.heaters[13] };//Зона 14 Парная лежак 2\nvar msg15 = { topic: \"/devices/wb-gpio/controls/EXT4_K2/on\", payload: main.heaters[14] };//Зона 15 Парная лежак 3\nvar msg16 = { topic: \"/devices/wb-gpio/controls/EXT4_K3/on\", payload: main.heaters[19] };//Зона 20 Парная потолок\nvar msg17 = { topic: \"/devices/wb-gpio/controls/EXT4_K4/on\", payload: main.heaters[18] };//Зона 19 Парная стена верх\nvar msg18 = { topic: \"/devices/wb-gpio/controls/EXT4_K5/on\", payload: main.heaters[17] };//Зона 18 Парная стена середина\nvar msg19 = { topic: \"/devices/wb-gpio/controls/EXT4_K6/on\", payload: main.heaters[16] };//Зона 17 Парная стена низ\nvar msg20 = { topic: \"/devices/wb-gpio/controls/EXT4_K7/on\", payload: main.heaters[15] };//Зона 16 Парная пол\nvar msg21 = { topic: \"/devices/wb-gpio/controls/EXT2_K2/on\", payload: (main.heaters[20] && global.get('buttons[13]')) };//Запарник\nvar msg22 = { topic: \"/devices/wb-mr6c_151/controls/K5/on\", payload: main.heaters[22] };//испаритель\nvar msg23 = { topic: \"/devices/wb-mr6c_151/controls/K4/on\", payload: main.heaters[23] };//парогенератор\n\nvar set1 = {topic: \"set1\", payload:main.setpoints[0]};\nmsg = {payload: main, topic: 'data'};\ncontext.set('main',main );\n\nreturn [msg1, msg2, msg3, msg4, msg5, msg6, msg7, msg8, msg9, msg10, msg11, msg12, msg13, msg14, msg15, msg16, msg17, msg18, msg19, msg20, msg21, msg22, msg23, msg, set1];\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n/*\n//Предустановленные режимы\nif (TP == \"off\" && PL == 0) {\n    for (let i = 0; i < 12; i++)\n        main.setpoints[i] = 0;\n    main.setpoints[22] = 0;//парогенератор\n    main.setpoints[23] = 0;\n    main.TP = TP;\n\n    context.set('main', main);\n\n}\n//вечерний пляж\nif (TP == \"beach_at_sunset\"){\n    for (let i = 0; i <= 22; i++) \n        main.setpoints[i] = 0;\n        main.setpoints[21] = 0;\n    for (let i = 0; i <= 5; i++) \n        main.setpoints[i] = 42;//лежаки\n        main.setpoints[6] = 36;//пол\n        main.setpoints[7] = 42;//ст.низ\n        main.setpoints[22] = 0;//парогенератор\n        main.setpoints[23] = 0;\n    main.TP = TP;\n    context.set('main', main);\n}\n\n//пляж\nif (TP == \"beach\"){\n    for (let i = 0; i <= 19; i++) //сброс \n        main.setpoints[i] = 0;\n        main.setpoints[21] = 0;\n    for (let i = 0; i <= 5; i++) \n        main.setpoints[i] = 42;//лежаки\n        main.setpoints[6] = 42;//пол\n        main.setpoints[7] = 42;//ст.низ\n        main.setpoints[8] = 42;//ст.сер\n        main.setpoints[9] = 42;//ст.верх\n        main.setpoints[10] = 42;//потолок\n        main.setpoints[11] = 42;//потолок\n        main.setpoints[22] = 0;//парогенератор\n        main.setpoints[23] = 0;\n    main.TP = TP;\n    context.set('main', main);\n}\n//ИК сауна\nif (TP == \"IR_sauna\"){\n    for (let i = 0; i <= 11; i++) //сброс \n        main.setpoints[i] = 0;\n        main.setpoints[21] = 0;\n    for (let i = 0; i <= 5; i++) \n        main.setpoints[i] = 42;//лежаки\n        main.setpoints[6] = 42;//пол\n        main.setpoints[7] = 44;//ст.низ\n        main.setpoints[8] = 52;//ст.сер\n        main.setpoints[9] = 56;//ст.верх\n        main.setpoints[10] = 60;//потолок\n        main.setpoints[11] = 60;//потолок\n        main.setpoints[22] = 0;//парогенератор\n        main.setpoints[23] = 0;\n    main.TP = TP;\n    context.set('main', main);\n}\n\n//Хамам\nif (TP == \"hamam\") {\n    for (let i = 0; i <= 11; i++) //сброс \n        main.setpoints[i] = 0;\n        main.setpoints[21] = 0;\n    for (let i = 0; i <= 5; i++)\n        main.setpoints[i] = 42;//лежаки\n    main.setpoints[6] = 42;//пол\n    main.setpoints[7] = 42;//ст.низ\n    main.setpoints[22] = 250;//парогенератор\n    main.setpoints[23] = 250;\n    main.TP = TP;\n    context.set('main', main);\n}\n\n//СПА\nif (TP == \"SPA\") {\n    for (let i = 0; i <= 11; i++) //сброс \n        main.setpoints[i] = 0;\n        main.setpoints[21] = 0;\n    for (let i = 0; i <= 5; i++)\n        main.setpoints[i] = 42;//лежаки\n    main.setpoints[6] = 42;//пол\n    main.setpoints[7] = 48;//ст.низ\n    main.setpoints[8] = 52;//ст.сер\n    main.setpoints[9] = 56;//ст.верх\n    main.setpoints[10] = 58;//потолок\n    main.setpoints[11] = 58;//потолок\n    main.setpoints[22] = 0;//парогенератор\n    main.setpoints[23] = 0;//парогенератор\n    main.TP = TP;\n    context.set('main', main);\n}\n\n//Паровая баня\nif (TP == \"steam_bath\") {\n    for (let i = 0; i <= 11; i++) //сброс \n        main.setpoints[i] = 0;\n        main.setpoints[21] = 0;\n    for (let i = 0; i <= 5; i++)\n        main.setpoints[i] = 42;//лежаки\n    main.setpoints[6] = 42;//пол\n    main.setpoints[7] = 44;//ст.низ\n    main.setpoints[8] = 52;//ст.сер\n    main.setpoints[9] = 56;//ст.верх\n    main.setpoints[10] = 60;//потолок\n    main.setpoints[11] = 60;//потолок\n    main.setpoints[22] = 350;//парогенератор\n    main.setpoints[23] = 350;\n    main.TP = TP;\n    context.set('main', main);\n}\n\n//Русская баня\nif (TP == \"russian_bath\") {\n    for (let i = 0; i <= 11; i++) //сброс \n        main.setpoints[i] = 0;\n        main.setpoints[21] = 0;\n    for (let i = 0; i <= 5; i++)\n        main.setpoints[i] = 42;//лежаки\n    main.setpoints[6] = 42;//пол\n    main.setpoints[7] = 54;//ст.низ\n    main.setpoints[8] = 66;//ст.сер\n    main.setpoints[9] = 76;//ст.верх\n    main.setpoints[10] = 80;//потолок\n    main.setpoints[11] = 80;//потолок\n    main.setpoints[22] = 450;//парогенератор\n    main.setpoints[23] = 450;//парогенератор\n    main.TP = TP;\n    context.set('main', main);\n}*/",
+        "outputs": 25,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 890,
+        "y": 280,
+        "wires": [
+            [
+                "678e7493a454d1cc"
+            ],
+            [
+                "3f7b204b9b8b651c"
+            ],
+            [
+                "b86af3cce2e5bf13"
+            ],
+            [
+                "1ab6f2a14615904b"
+            ],
+            [
+                "7adfde3ae9ccb712"
+            ],
+            [
+                "3d14b81e78301a26"
+            ],
+            [
+                "daa99c0b3af4b1e3"
+            ],
+            [
+                "442e568e62388497"
+            ],
+            [
+                "4b78d57dbb89d32f"
+            ],
+            [
+                "0efcb776ee2c8c61"
+            ],
+            [
+                "31fe53d42e5cdf47"
+            ],
+            [
+                "eccccaaeeb44a748"
+            ],
+            [
+                "5fc97fe3a62ded41"
+            ],
+            [
+                "4e29593ce4f03653"
+            ],
+            [
+                "66525136955ca6f4"
+            ],
+            [
+                "91929ef9ac4f1ea8"
+            ],
+            [
+                "abc1b97103119732"
+            ],
+            [
+                "abe8e977d467ca08"
+            ],
+            [
+                "60329acac5124c21"
+            ],
+            [
+                "a73ee738d2b66197"
+            ],
+            [
+                "dd1d629c8c0f346a"
+            ],
+            [
+                "659783ce442cb659"
+            ],
+            [
+                "2be8e441f056bdfa"
+            ],
+            [
+                "12ef69950123f46d",
+                "6bd21339f29a76e9"
+            ],
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "287667a012494636",
+        "type": "function",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "Usersetpoints",
+        "func": "var EN = context.get('EN') || 0; //global.get('EN')\nvar usersetpoints = context.get('usersetpoints') || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15];\nusersetpoints[24] = global.get('usersetpoints24') || 15;\nvar main = JSON.parse(msg.payload);\nvar TP = main.topic;\nvar PL = main.value;\ncontext.set('main', main);\n\n\n/*\n\nЗона 1 Потельня лежак 1\nЗона 2 Потельня лежак 2\nЗона 3 Потельня лежак 3\nЗона 4 Потельня лежак 4\nЗона 5 Потельня лежак 5\nЗона 6 Потельня лежак 6\nЗона 7 Потельня пол\nЗона 8 Потельня стена низ\nЗона 9 Потельня стена середина\nЗона 10 Потельня стена верх\nЗона 11 Потельня потолок 1\nЗона 12 Потельня потолок 2\nЗона 13 Парная Лежак 1\nЗона 14 Парная лежак 2\nЗона 15 Парная лежак 3\nЗона 16 Парная пол\nЗона 17 Парная стена низ\nЗона 18 Парная стена середина\nЗона 19 Парная стена верх\nЗона 20 Парная потолок\n*/\n\nswitch (TP) {\n    case \"usersetpoints0\": //пол\n    usersetpoints[6] = PL;\n    context.set('usersetpoints', usersetpoints);\n\n    break;\n\n    case \"usersetpoints1\": //лежак\n    for (let i = 0; i < 5; i++) { \n    usersetpoints[i] = PL;\n    }\n    context.set('usersetpoints', usersetpoints);\n    break;\n\n    case \"usersetpoints2\": //низ стены\n    usersetpoints[7] = PL;\n    //msg = {payload: PL, topic: \"Perspirationroom_Sunbed_setpoint\"};\n    context.set('usersetpoints', usersetpoints);\n    break;\n\n    case \"usersetpoints3\": //середина стены\n    usersetpoints[8] = PL;\n    //msg = {payload: PL, topic: \"Perspirationroom_Sunbed_setpoint\"};\n    context.set('usersetpoints', usersetpoints);\n    break;\n\n    case \"usersetpoints4\": //верх стены\n    usersetpoints[9] = PL;\n    //msg = {payload: PL, topic: \"Perspirationroom_Sunbed_setpoint\"};\n    context.set('usersetpoints', usersetpoints);\n    break;\n\n    case \"usersetpoints5\": //потолок\n    usersetpoints[10] = PL;\n    //msg = {payload: PL, topic: \"Perspirationroom_Sunbed_setpoint\"};\n    context.set('usersetpoints', usersetpoints);\n    break;\n\n    case \"usersetpoints6\": //испаритель\n    usersetpoints[21] = PL;\n    //msg = {payload: PL, topic: \"Perspirationroom_Sunbed_setpoint\"};\n    context.set('usersetpoints', usersetpoints);\n    break;\n\n    case \"usersetpoints7\": //парогенератор\n    usersetpoints[22] = PL;\n    usersetpoints[23] = PL;\n    //msg = {payload: PL, topic: \"Perspirationroom_Sunbed_setpoint\"};\n    context.set('usersetpoints', usersetpoints);\n    break;\n\n    case \"usersetpoints9\": //Парная пол\n    usersetpoints[15] = PL;\n    //msg = {payload: PL, topic: \"Perspirationroom_Sunbed_setpoint\"};\n    context.set('usersetpoints', usersetpoints);\n    break;\n\n    case \"usersetpoints10\": //Парная лежак\n    usersetpoints[12] = PL;\n    //msg = {payload: PL, topic: \"Perspirationroom_Sunbed_setpoint\"};\n    context.set('usersetpoints', usersetpoints);\n    break;\n\n\n    case \"usersetpoints11\": //Парная низ\n    usersetpoints[16] = PL;\n    //msg = {payload: PL, topic: \"Perspirationroom_Sunbed_setpoint\"};\n    context.set('usersetpoints', usersetpoints);\n    break;\n\n    case \"usersetpoints12\": //Парная серед\n    usersetpoints[17] = PL;\n    //msg = {payload: PL, topic: \"Perspirationroom_Sunbed_setpoint\"};\n    context.set('usersetpoints', usersetpoints);\n    break;\n \n    case \"usersetpoints13\": //Парная верх\n    usersetpoints[18] = PL;\n    //msg = {payload: PL, topic: \"Perspirationroom_Sunbed_setpoint\"};\n    context.set('usersetpoints', usersetpoints);\n    break;\n\n    case \"usersetpoints14\": //Парная потолок\n    usersetpoints[19] = PL;\n    //msg = {payload: PL, topic: \"Perspirationroom_Sunbed_setpoint\"};\n    context.set('usersetpoints', usersetpoints);\n    break;\n\n\n    case \"usersetpoints24\": //время обливного\n        usersetpoints[24] = PL;\n        context.set('usersetpoints', usersetpoints);\n        global.set('usersetpoints24', usersetpoints[24]);\n    break;\n\n}\nfor (let i = 0; i < usersetpoints.length; i++) { \n    usersetpoints[i] = Number(usersetpoints[i]);\n    \n}\nfor (let i = 0; i < usersetpoints.length - 3; i++) { \n    if (usersetpoints[i]> 100)\n        usersetpoints[i] = 100;\n    \n}\ncontext.set('usersetpoints', usersetpoints);\nglobal.set('usersetpoints24', usersetpoints[24]);\nmsg = {payload: usersetpoints, topic: \"usersetpoints\"};\nvar delay = { delay:usersetpoints[24] };\n\nreturn [msg, delay];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 620,
+        "wires": [
+            [
+                "c12bdca1fa59a76e"
+            ],
+            [
+                "bb58ef9ea410496c",
+                "7b50d21ab64a9437"
+            ]
+        ]
+    },
+    {
+        "id": "303fb31374c3d6e3",
+        "type": "function",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "Sensors",
+        "func": "var EN = context.get('EN') || 0;\nvar timecatch = context.get('timecatch') ||     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];\nvar Time = Number.parseInt(Date.now() / 1000);\nvar timerequest = context.get('timerequest') || [Time, Time, Time, Time, Time, Time, Time, Time, Time, Time, Time, Time, Time, Time, Time, Time, Time, Time, Time, Time, Time, Time, Time, Time];\nvar tempsensors = context.get('tempsensors') || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];\nvar errors = context.get('errors') ||           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];\nvar errormsg = context.get('errormsg') ||       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];\nvar TP = msg.topic;\nvar PL = msg.payload;\n\n/*\nЗона 1 СПА-Зона лежак 1\nЗона 2 СПА-Зона лежак 2\nЗона 3 СПА-Зона лежак 3\nЗона 4 СПА-Зона лежак 4\nЗона 5 СПА-Зона лежак 5\nЗона 6 СПА-Зона лежак 6\nЗона 7 СПА-Зона пол\nЗона 8 СПА-Зона стена низ\nЗона 9 СПА-Зона стена середина\nЗона 10 СПА-Зона стена верх\nЗона 11 СПА-Зона потолок 1\nЗона 12 СПА-Зона потолок 2\nЗона 13 Парная Лежак 1\nЗона 14 Парная лежак 2\nЗона 15 Парная лежак 3\nЗона 16 Парная пол\nЗона 17 Парная стена низ\nЗона 18 Парная стена середина\nЗона 19 Парная стена верх\nЗона 20 Парная потолок\n*/\n\n\n\n\nswitch (TP) {\n\n    case \"/devices/wb-mai6_106/controls/IN 1 Temperature\": //Зона 1 СПА-Зона лежак 1\n        tempsensors[0] = PL - 5;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_106/controls/IN 2 Temperature\": //Зона 2 СПА-Зона лежак 2\n        tempsensors[1] = PL - 5;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_106/controls/IN 3 Temperature\": //Зона 3 СПА-Зона лежак 3\n        tempsensors[2] = PL - 5;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_106/controls/IN 4 Temperature\": //Зона 4 СПА-Зона лежак 4\n        tempsensors[3] = PL - 5;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_106/controls/IN 5 Temperature\": //Зона 5 СПА-Зона лежак 5\n        tempsensors[4] = PL - 5;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_106/controls/IN 6 Temperature\": //Зона 6 СПА-Зона лежак 6\n        tempsensors[5] = PL - 5;\n        context.set('tempsensors', tempsensors);\n        break;\n\n\n    case \"/devices/wb-mai6_211/controls/IN 1 Temperature\": //Зона 7 СПА-Зона пол\n        tempsensors[6] = PL - 5;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_211/controls/IN 2 Temperature\": //Зона 8 СПА-Зона стена низ\n        tempsensors[7] = PL - 5;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_211/controls/IN 3 Temperature\": //Зона 9 СПА-Зона стена середина\n        tempsensors[8] = PL - 5;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_211/controls/IN 4 Temperature\": //Зона 10 СПА-Зона стена верх\n        tempsensors[9] = PL - 5;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_211/controls/IN 5 Temperature\": //Зона 11 СПА-Зона потолок 1\n        tempsensors[10] = PL - 5;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_211/controls/IN 6 Temperature\": //Зона 12 СПА-Зона потолок 2\n        tempsensors[11] = PL - 5;\n        context.set('tempsensors', tempsensors);\n        break;\n\n\n\n    case \"/devices/wb-mai6_127/controls/IN 1 Temperature\": //Зона 13 Парная Лежак 1\n        tempsensors[12] = PL - 5;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_127/controls/IN 2 Temperature\": //Зона 14 Парная лежак 2\n        tempsensors[13] = PL - 5;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_127/controls/IN 3 Temperature\": //Зона 15 Парная лежак 3\n        tempsensors[14] = PL - 5;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_127/controls/IN 4 Temperature\": //Зона 16 Парная пол\n        tempsensors[15] = PL - 5;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_127/controls/IN 5 Temperature\": //Зона 17 Парная стена низ\n        tempsensors[16] = PL - 5;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_127/controls/IN 6 Temperature\": //Зона 18 Парная стена середина\n        tempsensors[17] = PL - 5;\n        context.set('tempsensors', tempsensors);\n        break;\n\n\n\n    case \"/devices/wb-mai6_39/controls/IN 1 Temperature\": //Зона 19 Парная стена верх\n        tempsensors[18] = PL - 5;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_39/controls/IN 2 Temperature\": //Зона 20 Парная потолок\n        tempsensors[19] = PL - 5;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_39/controls/IN 3 Temperature\": //Зона\n        tempsensors[20] = PL;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_39/controls/IN 4 Temperature\": //Зона запарник\n        tempsensors[21] = PL;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_39/controls/IN 5 Temperature\": //Испаритель\n        tempsensors[22] = PL;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_39/controls/IN 6 Temperature\": //Парогенератор\n        tempsensors[23] = PL;\n        context.set('tempsensors', tempsensors);\n        break;\n\n\n\n\n\n    //Ошибки считывания датчиков\n    \n    case \"/devices/wb-mai6_106/controls/IN 1 Temperature/meta/error\": //Зона 1 СПА-Зона лежак 1\n        if (tempsensors[0] != \"Err\") {\n            tempsensors[0] = \"Err\";\n            errors[0] = \"/devices/wb-mai6_106/controls/IN 1 Temperature/meta/error\";\n            errormsg[0] = \"Зона 1 СПА-Зона лежак 1 - Обрыв датчика\";\n            timecatch[0] = Number.parseInt(Date.now() / 1000);\n            context.set('timecatch', timecatch);\n            context.set('errors', errors);\n            context.set('tempsensors', tempsensors);\n        } else {\n            timerequest[0] = Number.parseInt(Date.now() / 1000);\n            context.set('timerequest', timerequest);\n        }\n        break;\n\n    case \"/devices/wb-mai6_106/controls/IN 2 Temperature/meta/error\": //Зона 2 СПА-Зона лежак 2\n        if (tempsensors[1] != \"Err\") {\n            tempsensors[1] = \"Err\";\n            errors[1] = \"/devices/wb-mai6_106/controls/IN 2 Temperature/meta/error\";\n            errormsg[1] = \"Зона 2 СПА-Зона лежак 2 - Обрыв датчика\";\n            timecatch[1] = Number.parseInt(Date.now() / 1000);\n            context.set('timecatch', timecatch);\n            context.set('errors', errors);\n            context.set('tempsensors', tempsensors);\n        } else {\n            timerequest[1] = Number.parseInt(Date.now() / 1000);\n            context.set('timerequest', timerequest);\n        }\n        break;\n\n    case \"/devices/wb-mai6_106/controls/IN 3 Temperature/meta/error\": //Зона 3 СПА-Зона лежак 3\n        if (tempsensors[2] != \"Err\") {\n            tempsensors[2] = \"Err\";\n            errors[2] = \"/devices/wb-mai6_106/controls/IN 3 Temperature/meta/error\";\n            errormsg[2] = \"Зона 3 СПА-Зона лежак 3 - Обрыв датчика\";\n            timecatch[2] = Number.parseInt(Date.now() / 1000);\n            context.set('timecatch', timecatch);\n            context.set('errors', errors);\n            context.set('tempsensors', tempsensors);\n        } else {\n            timerequest[2] = Number.parseInt(Date.now() / 1000);\n            context.set('timerequest', timerequest);\n        }\n        break;\n\n    case \"/devices/wb-mai6_106/controls/IN 4 Temperature/meta/error\": //Зона 4 СПА-Зона лежак 4\n        if (tempsensors[3] != \"Err\") {\n            tempsensors[3] = \"Err\";\n            errors[3] = \"/devices/wb-mai6_106/controls/IN 4 Temperature/meta/error\";\n            errormsg[3] = \"Зона 4 СПА-Зона лежак 4 - Обрыв датчика\";\n            timecatch[3] = Number.parseInt(Date.now() / 1000);\n            context.set('timecatch', timecatch);\n            context.set('errors', errors);\n            context.set('tempsensors', tempsensors);\n        } else {\n            timerequest[3] = Number.parseInt(Date.now() / 1000);\n            context.set('timerequest', timerequest);\n        }\n        break;\n\n    case \"/devices/wb-mai6_106/controls/IN 5 Temperature/meta/error\": //Зона 5 СПА-Зона лежак 5\n        if (tempsensors[4] != \"Err\") {\n            tempsensors[4] = \"Err\";\n            errors[4] = \"/devices/wb-mai6_106/controls/IN 5 Temperature/meta/error\";\n            errormsg[4] = \"Зона 5 СПА-Зона лежак 5 - Обрыв датчика\";\n            timecatch[4] = Number.parseInt(Date.now() / 1000);\n            context.set('timecatch', timecatch);\n            context.set('errors', errors);\n            context.set('tempsensors', tempsensors);\n        } else {\n            timerequest[4] = Number.parseInt(Date.now() / 1000);\n            context.set('timerequest', timerequest);\n        }\n        break;\n\n    case \"/devices/wb-mai6_106/controls/IN 6 Temperature/meta/error\": //Зона 6 СПА-Зона лежак 6\n        if (tempsensors[5] != \"Err\") {\n            tempsensors[5] = \"Err\";\n            errors[5] = \"/devices/wb-mai6_106/controls/IN 6 Temperature/meta/error\";\n            errormsg[5] = \"Зона 6 СПА-Зона лежак 6 - Обрыв датчика\";\n            timecatch[5] = Number.parseInt(Date.now() / 1000);\n            context.set('timecatch', timecatch);\n            context.set('errors', errors);\n            context.set('tempsensors', tempsensors);\n        } else {\n            timerequest[5] = Number.parseInt(Date.now() / 1000);\n            context.set('timerequest', timerequest);\n        }\n        break;\n\n    case \"/devices/wb-mai6_211/controls/IN 1 Temperature/meta/error\": //Зона 7 СПА-Зона пол\n        if (tempsensors[6] != \"Err\") {\n            tempsensors[6] = \"Err\";\n            errors[6] = \"/devices/wb-mai6_211/controls/IN 1 Temperature/meta/error\";\n            errormsg[6] = \"Зона 7 СПА-Зона пол - Обрыв датчика\";\n            timecatch[6] = Number.parseInt(Date.now() / 1000);\n            context.set('timecatch', timecatch);\n            context.set('errors', errors);\n            context.set('tempsensors', tempsensors);\n        } else {\n            timerequest[6] = Number.parseInt(Date.now() / 1000);\n            context.set('timerequest', timerequest);\n        }\n        break;\n\n    case \"/devices/wb-mai6_211/controls/IN 2 Temperature/meta/error\": //Зона 8 СПА-Зона стена низ\n        if (tempsensors[7] != \"Err\") {\n            tempsensors[7] = \"Err\";\n            errors[7] = \"/devices/wb-mai6_211/controls/IN 2 Temperature/meta/error\";\n            errormsg[7] = \"Зона 8 СПА-Зона стена низ - Обрыв датчика\";\n            timecatch[7] = Number.parseInt(Date.now() / 1000);\n            context.set('timecatch', timecatch);\n            context.set('errors', errors);\n            context.set('tempsensors', tempsensors);\n        } else {\n            timerequest[7] = Number.parseInt(Date.now() / 1000);\n            context.set('timerequest', timerequest);\n        }\n        break;\n\n    case \"/devices/wb-mai6_211/controls/IN 3 Temperature/meta/error\": //Зона 9 СПА-Зона стена середина\n        if (tempsensors[8] != \"Err\") {\n            tempsensors[8] = \"Err\";\n            errors[8] = \"/devices/wb-mai6_211/controls/IN 3 Temperature/meta/error\";\n            errormsg[8] = \"Зона 9 СПА-Зона стена середина - Обрыв датчика\";\n            timecatch[8] = Number.parseInt(Date.now() / 1000);\n            context.set('timecatch', timecatch);\n            context.set('errors', errors);\n            context.set('tempsensors', tempsensors);\n        } else {\n            timerequest[8] = Number.parseInt(Date.now() / 1000);\n            context.set('timerequest', timerequest);\n        }\n        break;\n\n    case \"/devices/wb-mai6_211/controls/IN 4 Temperature/meta/error\": //Зона 10 СПА-Зона стена верх\n        if (tempsensors[9] != \"Err\") {\n            tempsensors[9] = \"Err\";\n            errors[9] = \"/devices/wb-mai6_211/controls/IN 4 Temperature/meta/error\";\n            errormsg[9] = \"Зона 10 СПА-Зона стена верх - Обрыв датчика\";\n            timecatch[9] = Number.parseInt(Date.now() / 1000);\n            context.set('timecatch', timecatch);\n            context.set('errors', errors);\n            context.set('tempsensors', tempsensors);\n        } else {\n            timerequest[9] = Number.parseInt(Date.now() / 1000);\n            context.set('timerequest', timerequest);\n        }\n        break;\n\n    case \"/devices/wb-mai6_211/controls/IN 5 Temperature/meta/error\": //Зона 11 СПА-Зона потолок 1\n        if (tempsensors[10] != \"Err\") {\n            tempsensors[10] = \"Err\";\n            errors[10] = \"/devices/wb-mai6_211/controls/IN 5 Temperature/meta/error\";\n            errormsg[10] = \"Зона 11 СПА-Зона потолок 1 - Обрыв датчика\";\n            timecatch[10] = Number.parseInt(Date.now() / 1000);\n            context.set('timecatch', timecatch);\n            context.set('errors', errors);\n            context.set('tempsensors', tempsensors);\n        } else {\n            timerequest[10] = Number.parseInt(Date.now() / 1000);\n            context.set('timerequest', timerequest);\n        }\n        break;\n\n    case \"/devices/wb-mai6_211/controls/IN 6 Temperature/meta/error\": //Зона 12 СПА-Зона потолок 2\n        if (tempsensors[11] != \"Err\") {\n            tempsensors[11] = \"Err\";\n            errors[11] = \"/devices/wb-mai6_211/controls/IN 6 Temperature/meta/error\";\n            errormsg[11] = \"Зона 12 СПА-Зона потолок 2 - Обрыв датчика\";\n            timecatch[11] = Number.parseInt(Date.now() / 1000);\n            context.set('timecatch', timecatch);\n            context.set('errors', errors);\n            context.set('tempsensors', tempsensors);\n        } else {\n            timerequest[11] = Number.parseInt(Date.now() / 1000);\n            context.set('timerequest', timerequest);\n        }\n        break;\n\n    case \"/devices/wb-mai6_127/controls/IN 1 Temperature/meta/error\": //Зона 13 Парная лежак 1\n        if (tempsensors[12] != \"Err\") {\n            tempsensors[12] = \"Err\";\n            errors[12] = \"/devices/wb-mai6_127/controls/IN 1 Temperature/meta/error\";\n            errormsg[12] = \"Зона 13 Парная лежак 1 - Обрыв датчика\";\n            timecatch[12] = Number.parseInt(Date.now() / 1000);\n            context.set('timecatch', timecatch);\n            context.set('errors', errors);\n            context.set('tempsensors', tempsensors);\n        } else {\n            timerequest[12] = Number.parseInt(Date.now() / 1000);\n            context.set('timerequest', timerequest);\n        }\n        break;\n\n    case \"/devices/wb-mai6_127/controls/IN 2 Temperature/meta/error\": //Зона 14 Парная лежак 2\n        if (tempsensors[13] != \"Err\") {\n            tempsensors[13] = \"Err\";\n            errors[13] = \"/devices/wb-mai6_127/controls/IN 2 Temperature/meta/error\";\n            errormsg[13] = \"Зона 14 Парная лежак 2 - Обрыв датчика\";\n            timecatch[13] = Number.parseInt(Date.now() / 1000);\n            context.set('timecatch', timecatch);\n            context.set('errors', errors);\n            context.set('tempsensors', tempsensors);\n        } else {\n            timerequest[13] = Number.parseInt(Date.now() / 1000);\n            context.set('timerequest', timerequest);\n        }\n        break;\n\n    case \"/devices/wb-mai6_127/controls/IN 3 Temperature/meta/error\": //Зона 15 Парная лежак 3\n        if (tempsensors[14] != \"Err\") {\n            tempsensors[14] = \"Err\";\n            errors[14] = \"/devices/wb-mai6_127/controls/IN 3 Temperature/meta/error\";\n            errormsg[14] = \"Зона 15 Парная лежак 3 - Обрыв датчика\";\n            timecatch[14] = Number.parseInt(Date.now() / 1000);\n            context.set('timecatch', timecatch);\n            context.set('errors', errors);\n            context.set('tempsensors', tempsensors);\n        } else {\n            timerequest[14] = Number.parseInt(Date.now() / 1000);\n            context.set('timerequest', timerequest);\n        }\n        break;\n\n    case \"/devices/wb-mai6_127/controls/IN 4 Temperature/meta/error\": //Зона 16 Парная пол\n        if (tempsensors[15] != \"Err\") {\n            tempsensors[15] = \"Err\";\n            errors[15] = \"/devices/wb-mai6_127/controls/IN 4 Temperature/meta/error\";\n            errormsg[15] = \"Зона 16 Парная пол - Обрыв датчика\";\n            timecatch[15] = Number.parseInt(Date.now() / 1000);\n            context.set('timecatch', timecatch);\n            context.set('errors', errors);\n            context.set('tempsensors', tempsensors);\n        } else {\n            timerequest[15] = Number.parseInt(Date.now() / 1000);\n            context.set('timerequest', timerequest);\n        }\n        break;\n\n    case \"/devices/wb-mai6_127/controls/IN 5 Temperature/meta/error\": //Зона 17 Парная стена низ\n        if (tempsensors[16] != \"Err\") {\n            tempsensors[16] = \"Err\";\n            errors[16] = \"/devices/wb-mai6_127/controls/IN 5 Temperature/meta/error\";\n            errormsg[16] = \"Зона 17 Парная стена низ - Обрыв датчика\";\n            timecatch[16] = Number.parseInt(Date.now() / 1000);\n            context.set('timecatch', timecatch);\n            context.set('errors', errors);\n            context.set('tempsensors', tempsensors);\n        } else {\n            timerequest[16] = Number.parseInt(Date.now() / 1000);\n            context.set('timerequest', timerequest);\n        }\n        break;\n\n    case \"/devices/wb-mai6_127/controls/IN 6 Temperature/meta/error\": //Зона 18 Парная стена середина\n        if (tempsensors[17] != \"Err\") {\n            tempsensors[17] = \"Err\";\n            errors[17] = \"/devices/wb-mai6_127/controls/IN 6 Temperature/meta/error\";\n            errormsg[17] = \"Зона 18 Парная стена середина - Обрыв датчика\";\n            timecatch[17] = Number.parseInt(Date.now() / 1000);\n            context.set('timecatch', timecatch);\n            context.set('errors', errors);\n            context.set('tempsensors', tempsensors);\n        } else {\n            timerequest[17] = Number.parseInt(Date.now() / 1000);\n            context.set('timerequest', timerequest);\n        }\n        break;\n\n    case \"/devices/wb-mai6_39/controls/IN 1 Temperature/meta/error\": // Зона 19 Парная стена верх\n        if (tempsensors[18] != \"Err\") {\n            tempsensors[18] = \"Err\";\n            errors[18] = \"/devices/wb-mai6_39/controls/IN 1 Temperature/meta/error\";\n            errormsg[18] = \"Зона 19 Парная стена верх - Обрыв датчика\";\n            timecatch[18] = Number.parseInt(Date.now() / 1000);\n            context.set('timecatch', timecatch);\n            context.set('errors', errors);\n            context.set('tempsensors', tempsensors);\n        } else {\n            timerequest[18] = Number.parseInt(Date.now() / 1000);\n            context.set('timerequest', timerequest);\n        }\n        break;\n\n    case \"/devices/wb-mai6_39/controls/IN 2 Temperature/meta/error\": // Зона 20 Парная потолок\n        if (tempsensors[19] != \"Err\") {\n            tempsensors[19] = \"Err\";\n            errors[19] = \"/devices/wb-mai6_39/controls/IN 2 Temperature/meta/error\";\n            errormsg[19] = \"Зона 20 Парная потолок - Обрыв датчика\";\n            timecatch[19] = Number.parseInt(Date.now() / 1000);\n            context.set('timecatch', timecatch);\n            context.set('errors', errors);\n            context.set('tempsensors', tempsensors);\n        } else {\n            timerequest[19] = Number.parseInt(Date.now() / 1000);\n            context.set('timerequest', timerequest);\n        }\n        break;\n\n    case \"/devices/wb-mai6_39/controls/IN 4 Temperature/meta/error\": // Зона запарник\n        if (tempsensors[21] != \"Err\") {\n            tempsensors[21] = \"Err\";\n            errors[21] = \"/devices/wb-mai6_39/controls/IN 4 Temperature/meta/error\";\n            errormsg[21] = \"Зона запарник - Обрыв датчика\";\n            timecatch[21] = Number.parseInt(Date.now() / 1000);\n            context.set('timecatch', timecatch);\n            context.set('errors', errors);\n            context.set('tempsensors', tempsensors);\n        } else {\n            timerequest[21] = Number.parseInt(Date.now() / 1000);\n            context.set('timerequest', timerequest);\n        }\n        break;\n\n    case \"/devices/wb-mai6_39/controls/IN 5 Temperature/meta/error\": // Испаритель\n        if (tempsensors[22] != \"Err\") {\n            tempsensors[22] = \"Err\";\n            errors[22] = \"/devices/wb-mai6_39/controls/IN 5 Temperature/meta/error\";\n            errormsg[22] = \"Испаритель - Обрыв датчика\";\n            timecatch[22] = Number.parseInt(Date.now() / 1000);\n            context.set('timecatch', timecatch);\n            context.set('errors', errors);\n            context.set('tempsensors', tempsensors);\n        } else {\n            timerequest[22] = Number.parseInt(Date.now() / 1000);\n            context.set('timerequest', timerequest);\n        }\n        break;\n\n    case \"/devices/wb-mai6_39/controls/IN 6 Temperature/meta/error\": // Парогенератор\n        if (tempsensors[23] != \"Err\") {\n            tempsensors[23] = \"Err\";\n            errors[23] = \"/devices/wb-mai6_39/controls/IN 6 Temperature/meta/error\";\n            errormsg[23] = \"Парогенератор - Обрыв датчика\";\n            timecatch[23] = Number.parseInt(Date.now() / 1000);\n            context.set('timecatch', timecatch);\n            context.set('errors', errors);\n            context.set('tempsensors', tempsensors);\n        } else {\n            timerequest[23] = Number.parseInt(Date.now() / 1000);\n            context.set('timerequest', timerequest);\n        }\n        break;\n    /*\n    case \"/devices/wb-mai6_39/controls/IN 3 Temperature/meta/error\": //Зона 21 ТЕСТОВЫЙ БЛОК\n        for (let i = 0; i<24; i++){\n        if (tempsensors[i] != \"Err\"){\n        tempsensors[20] = \"Err\";\n        errors[i] = \"/devices/wb-mai6_39/controls/IN 3 Temperature/meta/error\" ;\n        errormsg[i] = \"Тестовое сообщение Зона\" + (i+1) + \" - Обрыв датчика\";\n        timecatch[i] = Number.parseInt(Date.now() / 1000);\n        context.set('timecatch', timecatch);\n        context.set('errors', errors);\n        context.set('tempsensors', tempsensors);}\n        }\n        break;\n    */\n   \n}\n\n    context.set('errormsg', errormsg);\n    context.set('timecatch', timecatch);\n    context.set('errors', errors);\n    context.set('tempsensors', tempsensors);\n\nfor (let i = 0; i < 24; i++){\n\n    if ( tempsensors[i] == \"Err\" && timerequest[i] !=0 && (Number.parseInt(Date.now() / 1000) - timerequest[i]) > 120)\n    {\n        var MQTT = { topic: errors[i], payload: 1};\n        timerequest[i] = Number.parseInt(Date.now() / 1000);\n        context.set('timerequest', timerequest);\n    }\n    \n    if (tempsensors[i] != \"Err\" && timerequest[i] != 0 && (Number.parseInt(Date.now() / 1000) - timerequest[i]) > 60){\n        \n        errors[i] = 0;\n        errormsg[i] = 0;\n        timecatch[i] = 0;\n       \n        context.set('timecatch', timecatch);\n        context.set('errors', errors);\n        context.set('errormsg', errormsg);\n        \n    }\n}\n    context.set('errormsg', errormsg);\n    context.set('timecatch', timecatch);\n    context.set('errors', errors);\n    context.set('tempsensors', tempsensors);\n    context.set('timerequest', timerequest);\n    \nmsg = { payload: { tempsensors: tempsensors, errormsg: errormsg, timecatch: timecatch}, topic: \"tempsensors\"};\n\nreturn [msg, MQTT];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 880,
+        "y": 540,
+        "wires": [
+            [
+                "c12bdca1fa59a76e"
+            ],
+            [
+                "a3efd18d6fbbc80a"
+            ]
+        ]
+    },
+    {
+        "id": "9462975e07145951",
+        "type": "mqtt in",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "topic": "#",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "e0f156886c78d472",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 470,
+        "y": 540,
+        "wires": [
+            [
+                "463b21c63dc8ee10",
+                "20513d81de088f88"
+            ]
+        ]
+    },
+    {
+        "id": "49e28cd4c6afc2b9",
+        "type": "inject",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "beach_at_sunset",
+        "payload": "1",
+        "payloadType": "str",
+        "x": 550,
+        "y": 160,
+        "wires": [
+            [
+                "c12bdca1fa59a76e"
+            ]
+        ]
+    },
+    {
+        "id": "162d11e744aebc56",
+        "type": "inject",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "off",
+        "payload": "1",
+        "payloadType": "str",
+        "x": 510,
+        "y": 120,
+        "wires": [
+            [
+                "c12bdca1fa59a76e",
+                "2616ef79e8097648"
+            ]
+        ]
+    },
+    {
+        "id": "a3efd18d6fbbc80a",
+        "type": "mqtt out",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "e0f156886c78d472",
+        "x": 1530,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "463b21c63dc8ee10",
+        "type": "rbe",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 590,
+        "y": 540,
+        "wires": [
+            [
+                "303fb31374c3d6e3",
+                "5df185b4bf268634",
+                "28b5831cb66f127f"
+            ]
+        ]
+    },
+    {
+        "id": "5379a044f87ca912",
+        "type": "rbe",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 1370,
+        "y": 240,
+        "wires": [
+            [
+                "a3efd18d6fbbc80a"
+            ]
+        ]
+    },
+    {
+        "id": "5eb585adfa7c135a",
+        "type": "inject",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "beach",
+        "payload": "1",
+        "payloadType": "str",
+        "x": 510,
+        "y": 200,
+        "wires": [
+            [
+                "c12bdca1fa59a76e"
+            ]
+        ]
+    },
+    {
+        "id": "f5ea22c32c4c5e8e",
+        "type": "inject",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "IR_sauna",
+        "payload": "1",
+        "payloadType": "str",
+        "x": 530,
+        "y": 240,
+        "wires": [
+            [
+                "c12bdca1fa59a76e"
+            ]
+        ]
+    },
+    {
+        "id": "678e7493a454d1cc",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "0.05",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 20,
+        "wires": [
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "3f7b204b9b8b651c",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "0.1",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 40,
+        "wires": [
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "b86af3cce2e5bf13",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "0.15",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 60,
+        "wires": [
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "1ab6f2a14615904b",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "0.2",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 80,
+        "wires": [
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "7adfde3ae9ccb712",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "0.25",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 100,
+        "wires": [
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "3d14b81e78301a26",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "0.3",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 120,
+        "wires": [
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "daa99c0b3af4b1e3",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "0.35",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 140,
+        "wires": [
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "442e568e62388497",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "0.4",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 160,
+        "wires": [
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "4b78d57dbb89d32f",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "0.45",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 180,
+        "wires": [
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "0efcb776ee2c8c61",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "0.5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 200,
+        "wires": [
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "31fe53d42e5cdf47",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "0.55",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 220,
+        "wires": [
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "eccccaaeeb44a748",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "0.6",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 240,
+        "wires": [
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "5fc97fe3a62ded41",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "0.65",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 260,
+        "wires": [
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "4e29593ce4f03653",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "0.7",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 280,
+        "wires": [
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "66525136955ca6f4",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "0.75",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 300,
+        "wires": [
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "91929ef9ac4f1ea8",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "0.8",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 320,
+        "wires": [
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "abc1b97103119732",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "0.85",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 340,
+        "wires": [
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "abe8e977d467ca08",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "0.9",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 360,
+        "wires": [
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "60329acac5124c21",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "0.95",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 380,
+        "wires": [
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "a73ee738d2b66197",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "1",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1170,
+        "y": 400,
+        "wires": [
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "5df185b4bf268634",
+        "type": "function",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "Heaters FB",
+        "func": "var EN = context.get('EN') || 0;\nvar heaters = context.get('heaters') || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];\n\nvar TP = msg.topic;\nvar PL = msg.payload;\n\n/*\nЗона 1 Потельня лежак 1\nЗона 2 Потельня лежак 2\nЗона 3 Потельня лежак 3\nЗона 4 Потельня лежак 4\nЗона 5 Потельня лежак 5\nЗона 6 Потельня лежак 6\nЗона 7 Потельня пол\nЗона 8 Потельня стена низ\nЗона 9 Потельня стена середина\nЗона 10 Потельня стена верх\nЗона 11 Потельня потолок 1\nЗона 12 Потельня потолок 2\nЗона 13 Парная Лежак 1\nЗона 14 Парная лежак 2\nЗона 15 Парная лежак 3\nЗона 16 Парная пол\nЗона 17 Парная стена низ\nЗона 18 Парная стена середина\nЗона 19 Парная стена верх\nЗона 20 Парная потолок\n*/\n\n/*\nvar msg1 = { topic: \"/devices/wb-gpio/controls/EXT2_K4/on\", payload: main.heaters[0] } ;//Зона 1 Потельня лежак 1\nvar msg2 = { topic: \"/devices/wb-gpio/controls/EXT2_K5/on\", payload: main.heaters[1] };//Зона 2 Потельня лежак 2\nvar msg3 = { topic: \"/devices/wb-gpio/controls/EXT2_K6/on\", payload: main.heaters[2] };//Зона 3 Потельня лежак 3\nvar msg4 = { topic: \"/devices/wb-gpio/controls/EXT2_K7/on\", payload: main.heaters[3] };//Зона 4 Потельня лежак 4\nvar msg5 = { topic: \"/devices/wb-gpio/controls/EXT2_K8/on\", payload: main.heaters[4] };//Зона 5 Потельня лежак 5\nvar msg6 = { topic: \"/devices/wb-gpio/controls/EXT3_K1/on\", payload: main.heaters[5] };//Зона 6 Потельня лежак 6\nvar msg7 = { topic: \"/devices/wb-gpio/controls/EXT3_K2/on\", payload: main.heaters[6] };//Зона 7 Потельня пол\nvar msg8 = { topic: \"/devices/wb-gpio/controls/EXT3_K3/on\", payload: main.heaters[7] };//Зона 8 Потельня стена низ\nvar msg9 = { topic: \"/devices/wb-gpio/controls/EXT3_K4/on\", payload: main.heaters[8] };//Зона 9 Потельня стена середина\nvar msg10 = { topic: \"/devices/wb-gpio/controls/EXT3_K5/on\", payload: main.heaters[9] };//Зона 10 Потельня стена верх\nvar msg11 = { topic: \"/devices/wb-gpio/controls/EXT3_K6/on\", payload: main.heaters[10] };//Зона 11 Потельня потолок 1 душ\nvar msg12 = { topic: \"/devices/wb-gpio/controls/EXT3_K7/on\", payload: main.heaters[11] };//Зона 12 Потельня потолок 2\nvar msg13 = { topic: \"/devices/wb-gpio/controls/EXT3_K8/on\", payload: main.heaters[12] };//Зона 13 Парная Лежак 1\nvar msg14 = { topic: \"/devices/wb-gpio/controls/EXT4_K1/on\", payload: main.heaters[13] };//Зона 14 Парная лежак 2\nvar msg15 = { topic: \"/devices/wb-gpio/controls/EXT4_K2/on\", payload: main.heaters[14] };//Зона 15 Парная лежак 3\nvar msg16 = { topic: \"/devices/wb-gpio/controls/EXT4_K3/on\", payload: main.heaters[15] };//Зона 20 Парная потолок\nvar msg17 = { topic: \"/devices/wb-gpio/controls/EXT4_K4/on\", payload: main.heaters[16] };//Зона 19 Парная стена верх\nvar msg18 = { topic: \"/devices/wb-gpio/controls/EXT4_K5/on\", payload: main.heaters[17] };//Зона 18 Парная стена середина\nvar msg19 = { topic: \"/devices/wb-gpio/controls/EXT4_K6/on\", payload: main.heaters[18] };//Зона 17 Парная стена низ\nvar msg20 = { topic: \"/devices/wb-gpio/controls/EXT4_K7/on\", payload: main.heaters[19] };//Зона 16 Парная пол\n*/\n\n\nswitch (TP) {\n    case \"/devices/wb-gpio/controls/EXT2_K4\": //Зона 1 Потельня лежак 1\n        heaters[0] = PL;\n        context.set('heaters', heaters);\n        break;\n\n    case \"/devices/wb-gpio/controls/EXT2_K5\": //Зона 2 Потельня лежак 2\n        heaters[1] = PL;\n        context.set('heaters', heaters);\n        break;\n\n    case \"/devices/wb-gpio/controls/EXT2_K6\": //Зона 3 Потельня лежак 3\n        heaters[2] = PL;\n        context.set('heaters', heaters);\n        break;\n\n    case \"/devices/wb-gpio/controls/EXT2_K7\": //Зона 4 Потельня лежак 4\n        heaters[3] = PL;\n        context.set('heaters', heaters);\n        break;\n\n    case \"/devices/wb-gpio/controls/EXT2_K8\": //Зона 5 Потельня лежак 5\n        heaters[4] = PL;\n        context.set('heaters', heaters);\n        break;\n\n    case \"/devices/wb-gpio/controls/EXT3_K1\": //Зона 6 Потельня лежак 6\n        heaters[5] = PL;\n        context.set('heaters', heaters);\n        break;\n\n  \n    case \"/devices/wb-gpio/controls/EXT3_K2\": //Зона 7 Потельня пол\n        heaters[6] = PL;\n        context.set('heaters', heaters);\n        break;\n\n    case \"/devices/wb-gpio/controls/EXT3_K3\": //Зона 8 Потельня стена низ\n        heaters[7] = PL;\n        context.set('heaters', heaters);\n        break;\n\n    case \"/devices/wb-gpio/controls/EXT3_K4\": //Зона 9 Потельня стена середина\n        heaters[8] = PL;\n        context.set('heaters', heaters);\n        break;\n\n    case \"/devices/wb-gpio/controls/EXT3_K5\": //Зона 10 Потельня стена верх\n        heaters[9] = PL;\n        context.set('heaters', heaters);\n        break;\n\n    case \"/devices/wb-gpio/controls/EXT3_K6\": //Зона 11 Потельня потолок 1\n        heaters[10] = PL;\n        context.set('heaters', heaters);\n        break;\n\n    case \"/devices/wb-gpio/controls/EXT3_K7\": //Зона 12 Потельня потолок 2\n        heaters[11] = PL;\n        context.set('heaters', heaters);\n        break;  \n\n    case \"/devices/wb-gpio/controls/EXT3_K8\": //Зона 13 Парная Лежак 1\n        heaters[12] = PL;\n        context.set('heaters', heaters);\n        break;\n\n    case \"/devices/wb-gpio/controls/EXT4_K1\": //Зона 14 Парная лежак 2\n        heaters[13] = PL;\n        context.set('heaters', heaters);\n        break;\n\n    case \"/devices/wb-gpio/controls/EXT4_K2\": //Зона 15 Парная лежак 3\n        heaters[14] = PL;\n        context.set('heaters', heaters);\n        break;\n\n    case \"/devices/wb-gpio/controls/EXT4_K7/on\": //Зона 16 Парная пол\n        heaters[15] = PL;\n        context.set('heaters', heaters);\n        break;\n\n    case \"/devices/wb-gpio/controls/EXT4_K6\": //Зона 17 Парная стена низ\n        heaters[16] = PL;\n        context.set('heaters', heaters);\n        break;\n\n    case \"/devices/wb-gpio/controls/EXT4_K5\": //Зона 18 Парная стена середина\n        heaters[17] = PL;\n        context.set('heaters', heaters);\n        break;\n\n\n\n    case \"/devices/wb-gpio/controls/EXT4_K4\": //Зона 19 Парная стена верх\n    heaters[18] = PL;\n    context.set('heaters', heaters);\n    break;\n\n    case \"/devices/wb-gpio/controls/EXT4_K3\": //Зона 20 Парная потолок\n    heaters[19] = PL;\n    context.set('heaters', heaters);\n    break;\n\n\n    case \"/devices/wb-gpio/controls/EXT2_K2\": //Запарник\n    heaters[20] = PL;\n    context.set('heaters', heaters);\n    break;\n\n    case \"/devices/wb-mr6c_151/controls/K4\": //Зона 21 Испаритель\n    heaters[23] = PL;\n    context.set('heaters', heaters);\n    break;\n\n    case \"/devices/wb-mr6c_151/controls/K5\": //Зона 22 Парогенератор\n    heaters[22] = PL;\n    context.set('heaters', heaters);\n    break;\n\n\n\n\n   \n\n}\n\n\nmsg = {payload: heaters, topic: \"heaters\"};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 890,
+        "y": 580,
+        "wires": [
+            [
+                "c12bdca1fa59a76e",
+                "a3efd18d6fbbc80a"
+            ]
+        ]
+    },
+    {
+        "id": "928905df367a5eaa",
+        "type": "inject",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "hamam",
+        "payload": "1",
+        "payloadType": "str",
+        "x": 520,
+        "y": 280,
+        "wires": [
+            [
+                "c12bdca1fa59a76e"
+            ]
+        ]
+    },
+    {
+        "id": "8b287d3a19a6af3f",
+        "type": "inject",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "SPA",
+        "payload": "1",
+        "payloadType": "str",
+        "x": 510,
+        "y": 320,
+        "wires": [
+            [
+                "c12bdca1fa59a76e"
+            ]
+        ]
+    },
+    {
+        "id": "6289ead92f371264",
+        "type": "inject",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "steam_bath",
+        "payload": "1",
+        "payloadType": "str",
+        "x": 530,
+        "y": 360,
+        "wires": [
+            [
+                "c12bdca1fa59a76e"
+            ]
+        ]
+    },
+    {
+        "id": "ebdcd6e3997593fb",
+        "type": "inject",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "russian_bath",
+        "payload": "1",
+        "payloadType": "str",
+        "x": 540,
+        "y": 400,
+        "wires": [
+            [
+                "c12bdca1fa59a76e"
+            ]
+        ]
+    },
+    {
+        "id": "a2e32a1a9d7b1667",
+        "type": "websocket in",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "server": "46ca24a38dad0cb2",
+        "client": "",
+        "x": 390,
+        "y": 620,
+        "wires": [
+            [
+                "287667a012494636",
+                "c3511451ddabcf2a"
+            ]
+        ]
+    },
+    {
+        "id": "7c821b0e14d0678c",
+        "type": "debug",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "debug 2",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 200,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "c9d0d3e0cf22ddcb",
+        "type": "websocket out",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "server": "46ca24a38dad0cb2",
+        "client": "",
+        "x": 1790,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "12ef69950123f46d",
+        "type": "rbe",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "func": "rbe",
+        "gap": "0.2",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 1430,
+        "y": 600,
+        "wires": [
+            [
+                "805e6d7bebaa4b9c"
+            ]
+        ]
+    },
+    {
+        "id": "805e6d7bebaa4b9c",
+        "type": "json",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 1610,
+        "y": 600,
+        "wires": [
+            [
+                "c9d0d3e0cf22ddcb"
+            ]
+        ]
+    },
+    {
+        "id": "7d44312bca8e2f0c",
+        "type": "inject",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "user",
+        "payload": "1",
+        "payloadType": "str",
+        "x": 510,
+        "y": 440,
+        "wires": [
+            [
+                "c12bdca1fa59a76e"
+            ]
+        ]
+    },
+    {
+        "id": "dd1d629c8c0f346a",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "1.05",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 420,
+        "wires": [
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "659783ce442cb659",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "1.1",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 440,
+        "wires": [
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "1be35266ba92ec80",
+        "type": "ui_button",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "group": "6de2520f4ea787f0",
+        "order": 2,
+        "width": 25,
+        "height": 1,
+        "passthru": false,
+        "label": "Clear",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "[]",
+        "payloadType": "json",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 2390,
+        "y": 720,
+        "wires": [
+            [
+                "a6653f946de03aa6"
+            ]
+        ]
+    },
+    {
+        "id": "a6653f946de03aa6",
+        "type": "ui_chart",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "group": "6de2520f4ea787f0",
+        "order": 1,
+        "width": 25,
+        "height": 10,
+        "label": "Trends",
+        "chartType": "line",
+        "legend": "true",
+        "xformat": "HH:mm",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "604800",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 2590,
+        "y": 780,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "04637f457dc18f1f",
+        "type": "function",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "Chart1",
+        "func": "var PL = msg.payload;\nvar TP = msg.topic;\nvar date = context.get('date');\n\n//msg.payload =  PL.tempsensors[0];\nswitch (TP){\n\n    case \"fromX\":\n        date = { payload: {options: {xaxis: {min: PL}}}, topic: 'chart/data'};\n            \n        context.set('date', date);\n        break;\n        \n    case \"toX\":\n        //date = {payload:\"moment().to(\" + PL + \")\"};\n        break;\n\n\n    case \"data\":\n    var sensor0 = { topic: 'sunbed0', payload: PL.tempsensors[0]};\n    var sensor1 = { topic: 'sunbed1', payload: PL.tempsensors[1]};\n    var sensor2 = { topic: 'sunbed2', payload: PL.tempsensors[2]};\n    var sensor3 = { topic: 'sunbed3', payload: PL.tempsensors[3]};\n    var sensor4 = { topic: 'sunbed4', payload: PL.tempsensors[4]};\n    var sensor5 = { topic: 'sunbed5', payload: PL.tempsensors[5]};\n    break;\n\n}\n\n\n\n\n/*\nif (TP = \"toX\") {\n\n}\n*/\n\n\n \n\n\n\nreturn [sensor0, sensor1, sensor2, sensor3, sensor4, sensor5, date];",
+        "outputs": 7,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2090,
+        "y": 720,
+        "wires": [
+            [
+                "2bf5a938b58d8bfc"
+            ],
+            [
+                "2bf5a938b58d8bfc"
+            ],
+            [
+                "2bf5a938b58d8bfc"
+            ],
+            [
+                "2bf5a938b58d8bfc"
+            ],
+            [
+                "2bf5a938b58d8bfc"
+            ],
+            [
+                "2bf5a938b58d8bfc"
+            ],
+            [
+                "a6653f946de03aa6"
+            ]
+        ]
+    },
+    {
+        "id": "2bf5a938b58d8bfc",
+        "type": "rbe",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "func": "deadbandEq",
+        "gap": "0.2",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 2200,
+        "y": 640,
+        "wires": [
+            [
+                "a6653f946de03aa6"
+            ]
+        ]
+    },
+    {
+        "id": "6bd21339f29a76e9",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "5",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": true,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1840,
+        "y": 520,
+        "wires": [
+            [
+                "04637f457dc18f1f",
+                "6426a8c4740b64ad",
+                "f59d7884693919c1"
+            ]
+        ]
+    },
+    {
+        "id": "1eb72286954448b9",
+        "type": "ui_button",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "group": "6de2520f4ea787f0",
+        "order": 3,
+        "width": 5,
+        "height": 1,
+        "passthru": false,
+        "label": "moment from Now",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "moment().fromNow()",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 2430,
+        "y": 960,
+        "wires": [
+            [
+                "a6653f946de03aa6"
+            ]
+        ]
+    },
+    {
+        "id": "445d5b2e3ee71ead",
+        "type": "ui_button",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "group": "6de2520f4ea787f0",
+        "order": 4,
+        "width": 5,
+        "height": 1,
+        "passthru": false,
+        "label": "moment to Now",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "moment().toNow()",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 2420,
+        "y": 1000,
+        "wires": [
+            [
+                "a6653f946de03aa6"
+            ]
+        ]
+    },
+    {
+        "id": "ca20f9b9d3c5f291",
+        "type": "ui_date_picker",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "label": "From",
+        "group": "6de2520f4ea787f0",
+        "order": 5,
+        "width": "4",
+        "height": 1,
+        "passthru": true,
+        "topic": "fromX",
+        "topicType": "str",
+        "className": "",
+        "x": 2370,
+        "y": 860,
+        "wires": [
+            [
+                "04637f457dc18f1f"
+            ]
+        ]
+    },
+    {
+        "id": "8f8d6f5f0bc88bd6",
+        "type": "ui_date_picker",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "label": "To",
+        "group": "6de2520f4ea787f0",
+        "order": 6,
+        "width": "4",
+        "height": 1,
+        "passthru": true,
+        "topic": "toX",
+        "topicType": "str",
+        "className": "",
+        "x": 2370,
+        "y": 900,
+        "wires": [
+            [
+                "04637f457dc18f1f"
+            ]
+        ]
+    },
+    {
+        "id": "5a9d36fdcf3a3f28",
+        "type": "ui_button",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "group": "1105773d56ac7fb8",
+        "order": 2,
+        "width": "0",
+        "height": "0",
+        "passthru": false,
+        "label": "Off",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "1",
+        "payloadType": "str",
+        "topic": "off",
+        "topicType": "str",
+        "x": 2106.2833251953125,
+        "y": 1298.2833251953125,
+        "wires": [
+            [
+                "e7118ea314de1f45",
+                "f8213277cfb2d4fa"
+            ]
+        ]
+    },
+    {
+        "id": "8891b4a9cb81d91b",
+        "type": "ui_button",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "group": "1105773d56ac7fb8",
+        "order": 2,
+        "width": "0",
+        "height": "0",
+        "passthru": false,
+        "label": "Beach at sunset",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "1",
+        "payloadType": "str",
+        "topic": "beach_at_sunset",
+        "topicType": "str",
+        "x": 2140,
+        "y": 1340,
+        "wires": [
+            [
+                "e7118ea314de1f45",
+                "f8213277cfb2d4fa"
+            ]
+        ]
+    },
+    {
+        "id": "cb45fa46569825c4",
+        "type": "ui_button",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "group": "1105773d56ac7fb8",
+        "order": 2,
+        "width": "0",
+        "height": "0",
+        "passthru": false,
+        "label": "Beach",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "1",
+        "payloadType": "str",
+        "topic": "beach",
+        "topicType": "str",
+        "x": 2110,
+        "y": 1380,
+        "wires": [
+            [
+                "e7118ea314de1f45",
+                "f8213277cfb2d4fa"
+            ]
+        ]
+    },
+    {
+        "id": "9556ada04e902b56",
+        "type": "ui_button",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "group": "1105773d56ac7fb8",
+        "order": 2,
+        "width": "0",
+        "height": "0",
+        "passthru": false,
+        "label": "IR sauna",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "1",
+        "payloadType": "str",
+        "topic": "IR_sauna",
+        "topicType": "str",
+        "x": 2120,
+        "y": 1420,
+        "wires": [
+            [
+                "e7118ea314de1f45",
+                "f8213277cfb2d4fa"
+            ]
+        ]
+    },
+    {
+        "id": "ca9d8c90114f2f24",
+        "type": "ui_button",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "group": "1105773d56ac7fb8",
+        "order": 2,
+        "width": "0",
+        "height": "0",
+        "passthru": false,
+        "label": "Hamam",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "1",
+        "payloadType": "str",
+        "topic": "hamam",
+        "topicType": "str",
+        "x": 2120,
+        "y": 1460,
+        "wires": [
+            [
+                "e7118ea314de1f45",
+                "f8213277cfb2d4fa"
+            ]
+        ]
+    },
+    {
+        "id": "233ec4393670944c",
+        "type": "ui_button",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "group": "1105773d56ac7fb8",
+        "order": 2,
+        "width": "0",
+        "height": "0",
+        "passthru": false,
+        "label": "SPA",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "1",
+        "payloadType": "str",
+        "topic": "SPA",
+        "topicType": "str",
+        "x": 2110,
+        "y": 1500,
+        "wires": [
+            [
+                "e7118ea314de1f45",
+                "f8213277cfb2d4fa"
+            ]
+        ]
+    },
+    {
+        "id": "5d80cd47a2da8d21",
+        "type": "ui_button",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "group": "1105773d56ac7fb8",
+        "order": 2,
+        "width": "0",
+        "height": "0",
+        "passthru": false,
+        "label": "Steam bath",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "1",
+        "payloadType": "str",
+        "topic": "steam_bath",
+        "topicType": "str",
+        "x": 2130,
+        "y": 1540,
+        "wires": [
+            [
+                "e7118ea314de1f45",
+                "f8213277cfb2d4fa"
+            ]
+        ]
+    },
+    {
+        "id": "a6d520d78c25dbf9",
+        "type": "ui_button",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "group": "1105773d56ac7fb8",
+        "order": 2,
+        "width": "0",
+        "height": "0",
+        "passthru": false,
+        "label": "Russian bath",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "1",
+        "payloadType": "str",
+        "topic": "russian_bath",
+        "topicType": "str",
+        "x": 2130,
+        "y": 1580,
+        "wires": [
+            [
+                "e7118ea314de1f45",
+                "f8213277cfb2d4fa"
+            ]
+        ]
+    },
+    {
+        "id": "c88da0dd3554e01d",
+        "type": "ui_button",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "group": "1105773d56ac7fb8",
+        "order": 2,
+        "width": "0",
+        "height": "0",
+        "passthru": false,
+        "label": "User setiing",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "1",
+        "payloadType": "str",
+        "topic": "user",
+        "topicType": "str",
+        "x": 2130,
+        "y": 1620,
+        "wires": [
+            [
+                "e7118ea314de1f45",
+                "f8213277cfb2d4fa"
+            ]
+        ]
+    },
+    {
+        "id": "e7118ea314de1f45",
+        "type": "debug",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "debug 1",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 2380,
+        "y": 1460,
+        "wires": []
+    },
+    {
+        "id": "140e5c7caaf1145e",
+        "type": "ui_numeric",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "label": "Floor",
+        "tooltip": "",
+        "group": "1ae920aae8f99208",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "wrap": false,
+        "passthru": true,
+        "topic": "topic",
+        "topicType": "msg",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "45",
+        "step": 1,
+        "className": "",
+        "x": 2690,
+        "y": 1100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "0f7c6f04793a0c04",
+        "type": "ui_numeric",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "label": "Sunbed",
+        "tooltip": "",
+        "group": "1ae920aae8f99208",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "wrap": false,
+        "passthru": true,
+        "topic": "topic",
+        "topicType": "msg",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "120",
+        "step": 1,
+        "className": "",
+        "x": 2700,
+        "y": 1140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7ea9aa2666f6962e",
+        "type": "ui_numeric",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "label": "Bottom wall",
+        "tooltip": "",
+        "group": "1ae920aae8f99208",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "wrap": false,
+        "passthru": true,
+        "topic": "topic",
+        "topicType": "msg",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "120",
+        "step": 1,
+        "className": "",
+        "x": 2710,
+        "y": 1180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "cca48cbbefc6a9ea",
+        "type": "ui_numeric",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "label": "Middle wall",
+        "tooltip": "",
+        "group": "1ae920aae8f99208",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "wrap": false,
+        "passthru": true,
+        "topic": "topic",
+        "topicType": "msg",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "120",
+        "step": 1,
+        "className": "",
+        "x": 2710,
+        "y": 1220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2b22675c83a4d829",
+        "type": "ui_numeric",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "label": "Top wall",
+        "tooltip": "",
+        "group": "1ae920aae8f99208",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "wrap": false,
+        "passthru": true,
+        "topic": "topic",
+        "topicType": "msg",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "120",
+        "step": 1,
+        "className": "",
+        "x": 2700,
+        "y": 1260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "434ad5f6c40a2b37",
+        "type": "ui_numeric",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "label": "Ceiling",
+        "tooltip": "",
+        "group": "1ae920aae8f99208",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "wrap": false,
+        "passthru": true,
+        "topic": "topic",
+        "topicType": "msg",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "150",
+        "step": 1,
+        "className": "",
+        "x": 2690,
+        "y": 1300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ffa79053365c769c",
+        "type": "ui_numeric",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "label": "Stove",
+        "tooltip": "",
+        "group": "1ae920aae8f99208",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "wrap": false,
+        "passthru": true,
+        "topic": "topic",
+        "topicType": "msg",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "500",
+        "step": 1,
+        "className": "",
+        "x": 2690,
+        "y": 1380,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d7efa3fc5abbd301",
+        "type": "ui_numeric",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "label": "Vaporiser",
+        "tooltip": "",
+        "group": "1ae920aae8f99208",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "wrap": false,
+        "passthru": true,
+        "topic": "topic",
+        "topicType": "msg",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "500",
+        "step": 1,
+        "className": "",
+        "x": 2700,
+        "y": 1340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "bab458ec7e8684b5",
+        "type": "ui_text",
+        "z": "70a8e5dd82d8b4b1",
+        "group": "351cf7d91e0cbb56",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Floor",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 2430,
+        "y": 1100,
+        "wires": []
+    },
+    {
+        "id": "6426a8c4740b64ad",
+        "type": "function",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "Mainscreen",
+        "func": "var PL = msg.payload;\nvar TP = msg.topic;\nvar date = context.get('date');\n\n//msg.payload =  PL.tempsensors[0];\nswitch (TP){\n\n       case \"data\":\n        var setpoint1 = { topic: 'setpoint1', payload: PL.setpoints[0]};\n        var setpoint2 = { topic: 'setpoint2', payload: PL.setpoints[1]};\n        var setpoint3 = { topic: 'setpoint3', payload: PL.setpoints[2]};\n        var setpoint4 = { topic: 'setpoint4', payload: PL.setpoints[3]};\n        var setpoint5 = { topic: 'setpoint5', payload: PL.setpoints[4]};\n        var setpoint6 = { topic: 'setpoint6', payload: PL.setpoints[5]};\n        var setpoint7 = { topic: 'setpoint7', payload: PL.setpoints[6] };\n        var setpoint8 = { topic: 'setpoint8', payload: PL.setpoints[7] };\n        var setpoint9 = { topic: 'setpoint9', payload: PL.setpoints[8] };\n        var setpoint10 = { topic: 'setpoint10', payload: PL.setpoints[9] };\n        var setpoint11 = { topic: 'setpoint11', payload: PL.setpoints[10] };\n        var setpoint12 = { topic: 'setpoint12', payload: PL.setpoints[11] };\n        var setpoint13 = { topic: 'setpoint13', payload: PL.setpoints[12] };\n        var setpoint14 = { topic: 'setpoint14', payload: PL.setpoints[13] };\n        var setpoint15 = { topic: 'setpoint15', payload: PL.setpoints[14] };\n        var setpoint16 = { topic: 'setpoint16', payload: PL.setpoints[15] };\n        var setpoint17 = { topic: 'setpoint17', payload: PL.setpoints[16] };\n        var setpoint18 = { topic: 'setpoint18', payload: PL.setpoints[17] };\n        var setpoint19 = { topic: 'setpoint19', payload: PL.setpoints[18] };\n        var setpoint20 = { topic: 'setpoint20', payload: PL.setpoints[19] };\n        var setpoint21 = { topic: 'setpoint21', payload: PL.setpoints[20] };\n        var setpoint22 = { topic: 'setpoint22', payload: PL.setpoints[21] };\n        var setpoint23 = { topic: 'setpoint23', payload: PL.setpoints[22] };\n\n\n\n\n\n\n    break;\n\n}\n\n\n\n\n/*\nif (TP = \"toX\") {\n\n}\n*/\n\n\n \n\n\n\nreturn [setpoint7, setpoint1, setpoint8, setpoint9, setpoint10, setpoint11, setpoint22, setpoint23];",
+        "outputs": 8,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2110,
+        "y": 1040,
+        "wires": [
+            [
+                "bab458ec7e8684b5"
+            ],
+            [
+                "f68101c8d008b1de"
+            ],
+            [
+                "9f9547aaf632f0f3"
+            ],
+            [
+                "5723ae606e0201aa"
+            ],
+            [
+                "925956de0c6a938d"
+            ],
+            [
+                "65f44937ff9d2121"
+            ],
+            [
+                "28f1b5e37bb5562b"
+            ],
+            [
+                "392a740ae8c2b678"
+            ]
+        ]
+    },
+    {
+        "id": "f68101c8d008b1de",
+        "type": "ui_text",
+        "z": "70a8e5dd82d8b4b1",
+        "group": "351cf7d91e0cbb56",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Sunbed",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 2440,
+        "y": 1140,
+        "wires": []
+    },
+    {
+        "id": "9f9547aaf632f0f3",
+        "type": "ui_text",
+        "z": "70a8e5dd82d8b4b1",
+        "group": "351cf7d91e0cbb56",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Bottom wall",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 2450,
+        "y": 1180,
+        "wires": []
+    },
+    {
+        "id": "5723ae606e0201aa",
+        "type": "ui_text",
+        "z": "70a8e5dd82d8b4b1",
+        "group": "351cf7d91e0cbb56",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Middle wall",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 2450,
+        "y": 1220,
+        "wires": []
+    },
+    {
+        "id": "925956de0c6a938d",
+        "type": "ui_text",
+        "z": "70a8e5dd82d8b4b1",
+        "group": "351cf7d91e0cbb56",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Top wall",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 2440,
+        "y": 1260,
+        "wires": []
+    },
+    {
+        "id": "65f44937ff9d2121",
+        "type": "ui_text",
+        "z": "70a8e5dd82d8b4b1",
+        "group": "351cf7d91e0cbb56",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Ceiling",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 2430,
+        "y": 1300,
+        "wires": []
+    },
+    {
+        "id": "392a740ae8c2b678",
+        "type": "ui_text",
+        "z": "70a8e5dd82d8b4b1",
+        "group": "351cf7d91e0cbb56",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Stove",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 2430,
+        "y": 1380,
+        "wires": []
+    },
+    {
+        "id": "28f1b5e37bb5562b",
+        "type": "ui_text",
+        "z": "70a8e5dd82d8b4b1",
+        "group": "351cf7d91e0cbb56",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Vaporiser",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 2440,
+        "y": 1340,
+        "wires": []
+    },
+    {
+        "id": "1449f763d465cfe0",
+        "type": "link in",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "link in 1",
+        "links": [
+            "f8213277cfb2d4fa",
+            "b04c748b70780b52"
+        ],
+        "x": 755,
+        "y": 160,
+        "wires": [
+            [
+                "c12bdca1fa59a76e"
+            ]
+        ]
+    },
+    {
+        "id": "f8213277cfb2d4fa",
+        "type": "link out",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "link out 1",
+        "mode": "link",
+        "links": [
+            "1449f763d465cfe0"
+        ],
+        "x": 2335,
+        "y": 1520,
+        "wires": []
+    },
+    {
+        "id": "f59d7884693919c1",
+        "type": "function",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "Floor Wall Ceiling",
+        "func": "var PL = msg.payload;\nvar TP = msg.topic;\nvar date = context.get('date');\n\n//msg.payload =  PL.tempsensors[0];\nswitch (TP){\n\n    case \"fromX\":\n        date = { payload: {options: {xaxis: {min: PL}}}, topic: 'chart/data'};\n            \n        context.set('date', date);\n        break;\n        \n    case \"toX\":\n        //date = {payload:\"moment().to(\" + PL + \")\"};\n        break;\n\n\n    case \"data\":\n    var sensor0 = { topic: 'floor', payload: PL.tempsensors[6]};\n    var sensor1 = { topic: 'wall bottom', payload: PL.tempsensors[7]};\n    var sensor2 = { topic: 'wall middle', payload: PL.tempsensors[8]};\n    var sensor3 = { topic: 'wall top', payload: PL.tempsensors[9]};\n    var sensor4 = { topic: 'ceilling', payload: PL.tempsensors[10]};\n    var sensor5;\n    break;\n\n}\n\n\n\n\n/*\nif (TP = \"toX\") {\n\n}\n*/\n\n\n \n\n\n\nreturn [sensor0, sensor1, sensor2, sensor3, sensor4, sensor5, date];",
+        "outputs": 7,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2130,
+        "y": 520,
+        "wires": [
+            [
+                "4b67cda062b7dc0e"
+            ],
+            [
+                "4b67cda062b7dc0e"
+            ],
+            [
+                "4b67cda062b7dc0e"
+            ],
+            [
+                "4b67cda062b7dc0e"
+            ],
+            [
+                "4b67cda062b7dc0e"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "68e186990173edc0",
+        "type": "ui_chart",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "group": "6de2520f4ea787f0",
+        "order": 9,
+        "width": 25,
+        "height": 10,
+        "label": "Floor Wall Ceiling",
+        "chartType": "line",
+        "legend": "true",
+        "xformat": "HH:mm",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "604800",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 2630,
+        "y": 540,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4b67cda062b7dc0e",
+        "type": "rbe",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "func": "deadbandEq",
+        "gap": "0.2",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 2380,
+        "y": 460,
+        "wires": [
+            [
+                "68e186990173edc0"
+            ]
+        ]
+    },
+    {
+        "id": "7153a46df8d0ebc2",
+        "type": "function",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "function 1",
+        "func": "msg = msg.payload;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 680,
+        "y": 600,
+        "wires": [
+            [
+                "c12bdca1fa59a76e",
+                "53a613381ca2f3a2",
+                "28b5831cb66f127f",
+                "17b24ea25de393fc"
+            ]
+        ]
+    },
+    {
+        "id": "c3511451ddabcf2a",
+        "type": "json",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 530,
+        "y": 620,
+        "wires": [
+            [
+                "7153a46df8d0ebc2"
+            ]
+        ]
+    },
+    {
+        "id": "30c04c31c1950058",
+        "type": "function",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "Buttons",
+        "func": "var buttons = global.get('buttons') || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];\n//var main = JSON.parse(msg.payload);\nvar TP = msg.topic;\nvar PL = msg.payload;\nvar main;\nvar Time = (Number.parseInt(Date.now() / 1000));\ncontext.set('Time',Time);\nvar ventilatetime = context.get('ventilatetime') || Time;\nvar ventilateduration = context.get('ventilateduration') || 900;\nvar secondbreathtime = context.get('secondbreathtime') || Time;\nvar secondbreathduration = context.get('secondbreathduration') || 900;\n//var master = global.get('master') || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];\nvar RGBp = global.get('RGBp') || [0, 0, 0]; //perspirationroom\nvar RGBs = global.get('RGBs') || [0, 0, 0]; //steamroom\nvar vent = global.get('vent') || [0, 0, 0, 0, 0, 0];\nvar sconce = context.get('sconce') || 0;\n//context.set('main', {TP, PL});\n/*\nКнопка 1 Потельня пропарка вентиляция (X0)\nКнопка 2 Потельня паровой душ вентиляция (X1)\nКнопка 3 Потельня естественная тяга (X2)\nКнопка 4 Потельня проветривание вентиляция (X3) \nКнопка 5 Парная пропарка вентиляция (X0)\nКнопка 6 Парная паровой душ вентиляция (X1)\nКнопка 7 Парная естественная тяга (X2)\nКнопка 8 Парная проветривание вентиляция (X3)\nКнопка 9 Парная бра\nКнопка 10 Потельня бра\nКнопка 11 Парная RGB подсветка\nКнопка 12 Потельня RGB подсветка\nКнопка 13 Мастер-клавиша\nКнопка 14 Запарник\nКнопка 15 Лицевой фен\nКнопка 16 Обливное\n\n*/\n\nswitch (TP) {\n    case \"/devices/wb-gpio/controls/EXT1_IN1\": //Потельня пропарка вентиляция (X0)\n        if (PL == 1){\n            buttons[0] = 1; //+!buttons[0];\n            buttons[1] = 0;\n            buttons[2] = 0;\n            buttons[3] = 0;\n        //global.set('buttons', buttons);\n        }\n        \n\n        break;\n\n    case \"/devices/wb-gpio/controls/EXT1_IN2\": //Потельня паровой душ вентиляция (X1)\n        if (PL == 1){\n            buttons[1]++;\n            buttons[0] = 0;\n            buttons[2] = 0;\n            buttons[3] = 0;\n        }\n        if (buttons[1] > 4 || PL == 2) {\n            buttons[1] = 0;\n            }\n        break;\n\n\n    case \"/devices/wb-gpio/controls/EXT1_IN3\": //Потельня естественная тяга (X2)\n        if (PL == 1){\n            buttons[2] = 1; //+!buttons[2];\n            buttons[1] = 0;\n            buttons[0] = 0;\n            buttons[3] = 0;\n        }\n        //global.set('buttons', buttons);\n        break;\n\n\n    case \"/devices/wb-gpio/controls/EXT1_IN4\": //Потельня проветривание вентиляция (X3) \n        if (PL == 1){\n            buttons[3] = 1; //+!buttons[3];\n            buttons[1] = 0;\n            buttons[2] = 0;\n            buttons[0] = 0;\n            ventilatetime = Time;\n            context.set('ventilatetime', ventilatetime);\n        }\n        //global.set('buttons', buttons);\n        break;\n\n\n    case \"/devices/wb-gpio/controls/EXT1_IN5\": //Парная пропарка вентиляция (X0)\n       if (PL == 1){\n           buttons[0] = +!buttons[0];\n           buttons[1] = 0;\n           buttons[2] = 0;\n           buttons[3] = 0;\n        \n        }\n        //global.set('buttons', buttons);\n        break;\n\n    case \"/devices/wb-gpio/controls/EXT1_IN6\": //Парная паровой душ вентиляция (X1)\n       \n        if (PL == 1){\n            buttons[1]++;\n            buttons[0] = 0;\n            buttons[2] = 0;\n            buttons[3] = 0;\n        }\n        if (buttons[1] > 4 || PL == 2) {\n            buttons[1] = 0;\n            }\n        break;\n        \n\n    case \"/devices/wb-gpio/controls/EXT1_IN7\": //Парная естественная тяга (X2)\n       if (PL == 1){\n           buttons[2] = +!buttons[2];\n           buttons[1] = 0;\n           buttons[0] = 0;\n           buttons[3] = 0;\n        \n       }\n        global.set('buttons', buttons);\n        break;\n\n    case \"/devices/wb-gpio/controls/EXT1_IN8\": //Парная проветривание вентиляция (X3)\n       if (PL == 1){\n           buttons[3] = +!buttons[3];\n           buttons[1] = 0;\n           buttons[2] = 0;\n           buttons[0] = 0;\n           ventilatetime = Time;\n           context.set('ventilatetime', ventilatetime);\n        }\n        //global.set('buttons', buttons);\n        break;\n\n    case \"/devices/wb-gpio/controls/EXT1_IN9\": //бра парная\n       if (PL == 1){\n        if (buttons[12])\n            buttons[12]=0;\n            else\n               buttons[8] = +!buttons[8];\n       }\n        //  else if (PL == 2)\n        //      buttons[8] = +!buttons[8];\n        //global.set('buttons', buttons);\n        break;\n\n    case \"/devices/wb-gpio/controls/EXT1_IN10\": //бра потельня\n        if (PL == 1){\n           if (buttons[12])\n               buttons[12] = 0;\n           else\n            sconce++;\n            if (sconce > 3)\n            sconce = 0;}\n        // buttons[9] = +!buttons[9];\n        //  } else if (PL == 2)\n        //      buttons[9] = buttons[8];\n        // global.set('buttons', buttons);\n        break;\n\n    case \"/devices/wb-gpio/controls/EXT1_IN11\": //RGB парная\n       if (PL == 1){\n           if (buttons[12])\n               buttons[12] = 0;\n           else\n        buttons[10]++;\n       }\n        if (PL == 3)\n        buttons[10]++;\n        if (buttons[10] > 7 || PL == 2)\n            buttons[10] = 0;\n        global.set('buttons', buttons);\n        break;\n\n    case \"/devices/wb-gpio/controls/EXT1_IN12\": //RGB потельня\n       if (PL == 1){\n           if (buttons[12])\n               buttons[12] = 0;\n           else\n        buttons[11]++;\n        }\n        if (PL == 3)\n        buttons[11] = buttons[10];\n        if (buttons[11] > 7 || PL == 2)\n            buttons[11] = 0;\n        global.set('buttons', buttons);\n        break;\n\n    case \"/devices/wb-gpio/controls/EXT1_IN13\": //мастер\n       if (PL == 1){\n        if (!buttons[8] && !buttons[9] && !buttons[10] && !buttons[11] && !buttons[12]){\n        buttons[8] = buttons[9] = buttons[10] = buttons[11] = 1;\n        }\n        else\n\n           buttons[12] = +!buttons[12];\n            \n       }   \n        \n             /*\n            global.set('master', master);\n            global.set('buttons', buttons);\n            */\n        break;\n       \n       \n       \n\n    case \"/devices/wb-gpio/controls/EXT1_IN14\": //Запарник\n       if (PL == 1)\n        buttons[13] = +!buttons[13];\n        \n        global.set('buttons', buttons);\n        break;\n\n    case \"/devices/wb-mr6c_223/controls/Input 5\": //Лицевой фен\n       if (PL == 1){\n        var button14 = +!buttons[14];\n        context.set('button14', [buttons[14], +!buttons[14]]);\n        buttons[14] = button14;\n        secondbreathtime = Time;\n        context.set('secondbreathtime', secondbreathtime);\n         \n        }\n\n        context.set('buttons', buttons);\n        break;\n\n    case \"/devices/wb-mr6c_223/controls/Input 6\": //Обливное\n       \n        buttons[15] = +PL;\n        \n        //global.set('buttons', buttons);\n        break;\n\n    case \"off\":\n    if (PL == 1){\n\n            /*buttons[0] = 0;\n            buttons[1] = 0;\n            buttons[2] = 0;\n            buttons[3] = 0;*/\n            buttons[13] = 0;\n    }\n    break;\n\n\n    case \"offoff\":\n    if (PL == 1){\n    for (let i = 8; i < 16; i++ ){\n        buttons[i] = 0;\n        sconce = 0;\n    }}\n    break;\n\n\n}\n\n\nif (Time - secondbreathtime > 900){\n    buttons[14] = 0;\n}\n\n\n//Дублирование кнопок вентиляции\nbuttons[4] = buttons[0];\nbuttons[5] = buttons[1];\nbuttons[6] = buttons[2];\nbuttons[7] = buttons[3];\n\nif (Time - ventilatetime > 900){\n    buttons[0] = 1; \n    buttons[1] = 0;\n    buttons[2] = 0;\n    buttons[3] = 0;\n}\n\n//режимы вентиляции\nif (!buttons[1] && !buttons[2] && !buttons[3]) \nbuttons[0] = 1;\n\nif (buttons[0] )//Пропарка\nvent = [0,0,0,0,0,0]\n\n\n\n\nswitch(buttons[1]){//Паровой душ\n    case 0:\n    if (!buttons[0] && !buttons[2] && !buttons[3])    \n    vent = [0,0,0,0,0,0];\n   break;\n    case 1:\n    vent = [1,0,0,0,1,0];\n    break;\n    case 2:\n    vent = [0,1,0,0,1,0];\n    break;\n    case 3:\n    vent = [0,0,1,0,1,0];\n    break;\n    case 4:\n    vent = [0,0,0,1,1,0];\n    break; }\n\nif (buttons[2])\nvent = [0,0,0,0,1,1]\n\nif (buttons[3])\nvent = [0,0,0,1,0,1]\n\n\n\nswitch (sconce){ //Переключение бра\n    case 0:\n        buttons[8] = 0;\n        buttons[9] = 0;\n        break;\n    case 1:\n        buttons[8] = 1;\n        buttons[9] = 1;\n        break;\n    case 2:\n        buttons[8] = 0;\n        buttons[9] = 1;\n        break;\n    case 3:\n        buttons[8] = 1;\n        buttons[9] = 0;\n        break;\n\n}\n\n\n\nRGBs = RGB(buttons[10]);\nRGBp = RGB(buttons[11]);\n\n\nfunction RGB(mode){//Переключение режимов светодиодной подсветки\nvar arr = [0,0,0];\nswitch (mode){\n            case 0:\n                \n                arr[0] = 0;\n                arr[1] = 0;\n                arr[2] = 0;\n            break;\n\n            case 1:\n                arr[0] = 1;\n                arr[1] = 1;\n                arr[2] = 1;\n                break;\n\n            case 2:\n                arr[0] = 1;\n                arr[1] = 0;\n                arr[2] = 0;\n                break;\n\n            case 3:\n                arr[0] = 0;\n                arr[1] = 1;\n                arr[2] = 0;\n                break;\n\n            case 4:\n                arr[0] = 0;\n                arr[1] = 0;\n                arr[2] = 1;\n                break;\n\n            case 5:\n                arr[0] = 1;\n                arr[1] = 1;\n                arr[2] = 0;\n                break;\n\n            case 6:\n                arr[0] = 0;\n                arr[1] = 1;\n                arr[2] = 1;\n                break;\n\n            case 7:\n                arr[0] = 1;\n                arr[1] = 0;\n                arr[2] = 1;\n                break;\n        }\n        return arr;\n}\n\nvar main0 = { topic: \"/devices/wb-gpio/controls/EXT4_K8/on\", payload: buttons[0] };\nvar main1 = { topic: \"/devices/wb-gpio/controls/EXT2_K16/on\", payload: buttons[1] };\n\n\nvar main2 = { topic: \"/devices/wb-gpio/controls/EXT2_K15/on\", payload: buttons[2] };\nvar main3 = { topic: \"/devices/wb-gpio/controls/EXT2_K14/on\", payload: buttons[3] };\nvar main4 = { topic: \"/devices/wb-gpio/controls/EXT2_K13/on\", payload: buttons[4] };\nvar main5 = { topic: \"/devices/wb-gpio/controls/EXT2_K12/on\", payload: buttons[5] };\nvar main6 = { topic: \"/devices/wb-gpio/controls/EXT2_K11/on\", payload: buttons[6] };\nvar main7 = { topic: \"/devices/wb-gpio/controls/EXT2_K9/on\", payload: buttons[7] };\nif (!buttons[12]){\nvar main8 = { topic: \"/devices/wb-gpio/controls/EXT3_K12/on\", payload: buttons[8] };\nvar main9 = { topic: \"/devices/wb-gpio/controls/EXT3_K13/on\", payload: buttons[9] };\n\nvar main10R = { topic: \"/devices/wb-mr6c_223/controls/K1/on\", payload: RGBp[0] };\nvar main10G = { topic: \"/devices/wb-mr6c_223/controls/K2/on\", payload: RGBp[1] };\nvar main10B = { topic: \"/devices/wb-mr6c_223/controls/K3/on\", payload: RGBp[2] };\n\nvar main11R = { topic: \"/devices/wb-mr6c_223/controls/K4/on\", payload: RGBs[0] };\nvar main11G = { topic: \"/devices/wb-mr6c_223/controls/K5/on\", payload: RGBs[1] };\nvar main11B = { topic: \"/devices/wb-mr6c_223/controls/K6/on\", payload: RGBs[2] };\n}\nelse{\n main8 = { topic: \"/devices/wb-gpio/controls/EXT3_K12/on\", payload: 0 };\n main9 = { topic: \"/devices/wb-gpio/controls/EXT3_K13/on\", payload: 0 };\n\n main10R = { topic: \"/devices/wb-mr6c_223/controls/K1/on\", payload: 0 };\n main10G = { topic: \"/devices/wb-mr6c_223/controls/K2/on\", payload: 0 };\n main10B = { topic: \"/devices/wb-mr6c_223/controls/K3/on\", payload: 0 };\n\n main11R = { topic: \"/devices/wb-mr6c_223/controls/K4/on\", payload: 0 };\n main11G = { topic: \"/devices/wb-mr6c_223/controls/K5/on\", payload: 0 };\n main11B = { topic: \"/devices/wb-mr6c_223/controls/K6/on\", payload: 0 };\n\n}\n\n\n//var main12 = { topic: \"/devices/wb-gpio/controls/EXT2_K1/on\", payload: +!buttons[12] };\nvar main12 = { topic: \"/devices/wb-gpio/controls/EXT2_K1/on\", payload: 1 };\nvar main13 = { topic: \"/devices/wb-gpio/controls/EXT3_K15/on\", payload: buttons[13] };\nvar main14 = { topic: \"/devices/wb-gpio/controls/EXT3_K16/on\", payload: buttons[14] };\nvar main15 = { topic: \"/devices/wb-gpio/controls/EXT3_K11/on\", payload: buttons[15] };\n\n\nvar main16 = { topic: \"/devices/wb-gpio/controls/EXT4_K15/on\", payload: vent[0] };\nvar main17 = { topic: \"/devices/wb-gpio/controls/EXT4_K14/on\", payload: vent[1] };\nvar main18 = { topic: \"/devices/wb-gpio/controls/EXT4_K13/on\", payload: vent[2] };\nvar main19 = { topic: \"/devices/wb-gpio/controls/EXT4_K12/on\", payload: vent[3] };\nvar main20 = { topic: \"/devices/wb-gpio/controls/EXT4_K11/on\", payload: vent[4] };\nvar main21 = { topic: \"/devices/wb-gpio/controls/EXT4_K10/on\", payload: vent[5] };\n\nglobal.set('vent', vent);\nglobal.set('buttons', buttons);\nglobal.set('RGBs', RGBs);\nglobal.set('RGBp', RGBp);\ncontext.set('sconce', sconce);\n\ncontext.set('secondbreathtime', secondbreathtime);\ncontext.set('ventilatetime', ventilatetime);\ncontext.set('ventilateduration', ventilateduration);\ncontext.set('secondbreathduration', secondbreathduration);\n//main =  { topic: \"/devices/wb-gpio/controls/EXT2_K16/on\", payload: buttons[0] };\n\n\nreturn [main0, main1, main2, main3, main4, main5, main6, main7, main8, main9, main10R, main10G, main10B, main11R, main11G, main11B, main12, main13, main14, main15, main16, main17, main18, main19, main20, main21];",
+        "outputs": 26,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 880,
+        "y": 920,
+        "wires": [
+            [
+                "f9f985f4bf16897d",
+                "6f19e3a358902987"
+            ],
+            [
+                "f9f985f4bf16897d",
+                "6ca7ef598e2be78d"
+            ],
+            [
+                "f9f985f4bf16897d",
+                "d4421c002fbf3dc9"
+            ],
+            [
+                "f9f985f4bf16897d",
+                "95df50077cbd92c3"
+            ],
+            [
+                "f9f985f4bf16897d",
+                "d13e8aa129981e69"
+            ],
+            [
+                "f9f985f4bf16897d",
+                "5195d86ea6f67ffc"
+            ],
+            [
+                "f9f985f4bf16897d",
+                "6cc8d64f6a40c3ac"
+            ],
+            [
+                "f9f985f4bf16897d",
+                "873add695a8d97aa"
+            ],
+            [
+                "f9f985f4bf16897d",
+                "b67446a83b2d4d8e"
+            ],
+            [
+                "f9f985f4bf16897d"
+            ],
+            [
+                "f9f985f4bf16897d"
+            ],
+            [
+                "f9f985f4bf16897d"
+            ],
+            [
+                "f9f985f4bf16897d"
+            ],
+            [
+                "f9f985f4bf16897d"
+            ],
+            [
+                "f9f985f4bf16897d"
+            ],
+            [
+                "f9f985f4bf16897d",
+                "c33fa12ab7b37bd4"
+            ],
+            [
+                "f9f985f4bf16897d",
+                "dda0792e14b990f7"
+            ],
+            [
+                "f9f985f4bf16897d",
+                "aece722d502ee267"
+            ],
+            [
+                "f9f985f4bf16897d",
+                "4f2a5df6f4713e77"
+            ],
+            [
+                "f9f985f4bf16897d",
+                "06990e56aefae287"
+            ],
+            [
+                "f9f985f4bf16897d"
+            ],
+            [
+                "f9f985f4bf16897d"
+            ],
+            [
+                "f9f985f4bf16897d"
+            ],
+            [
+                "f9f985f4bf16897d"
+            ],
+            [
+                "f9f985f4bf16897d"
+            ],
+            [
+                "f9f985f4bf16897d"
+            ]
+        ]
+    },
+    {
+        "id": "f9f985f4bf16897d",
+        "type": "rbe",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 1190,
+        "y": 700,
+        "wires": [
+            [
+                "a3efd18d6fbbc80a"
+            ]
+        ]
+    },
+    {
+        "id": "6f19e3a358902987",
+        "type": "change",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "1",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1190,
+        "y": 740,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6ca7ef598e2be78d",
+        "type": "change",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "2",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1190,
+        "y": 780,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d4421c002fbf3dc9",
+        "type": "change",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "3",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1190,
+        "y": 820,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "95df50077cbd92c3",
+        "type": "change",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "4",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1190,
+        "y": 860,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d13e8aa129981e69",
+        "type": "change",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "5",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1190,
+        "y": 900,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5195d86ea6f67ffc",
+        "type": "change",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "6",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1190,
+        "y": 940,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6cc8d64f6a40c3ac",
+        "type": "change",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "7",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1190,
+        "y": 980,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "873add695a8d97aa",
+        "type": "change",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "8",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1190,
+        "y": 1020,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b67446a83b2d4d8e",
+        "type": "change",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "9",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1190,
+        "y": 1060,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "22c93590278d84bd",
+        "type": "change",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "10",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1190,
+        "y": 1100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2c0f36d2bc7d55b3",
+        "type": "change",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "11",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1190,
+        "y": 1140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c33fa12ab7b37bd4",
+        "type": "change",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "12",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1190,
+        "y": 1180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "dda0792e14b990f7",
+        "type": "change",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "13",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1190,
+        "y": 1220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "aece722d502ee267",
+        "type": "change",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "14",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1190,
+        "y": 1260,
+        "wires": [
+            [
+                "12f3949a9dd40d5b"
+            ]
+        ]
+    },
+    {
+        "id": "4f2a5df6f4713e77",
+        "type": "change",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "button15",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "/devices/wb-gpio/controls/EXT2_K10/on",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1200,
+        "y": 1300,
+        "wires": [
+            [
+                "75aeab1ed46337c4"
+            ]
+        ]
+    },
+    {
+        "id": "06990e56aefae287",
+        "type": "change",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "16",
+        "rules": [
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "/devices/wb-gpio/controls/EXT2_K10/on",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1190,
+        "y": 1340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7b50d21ab64a9437",
+        "type": "trigger",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "Обливное",
+        "op1": "",
+        "op2": "",
+        "op1type": "pay",
+        "op2type": "payl",
+        "duration": "15",
+        "extend": false,
+        "overrideDelay": true,
+        "units": "s",
+        "reset": "",
+        "bytopic": "all",
+        "topic": "topic",
+        "outputs": 1,
+        "x": 430,
+        "y": 980,
+        "wires": [
+            [
+                "cab7435938e86269",
+                "c7f25af6bdcc0da2"
+            ]
+        ]
+    },
+    {
+        "id": "21680d5834acf729",
+        "type": "switch",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "neq",
+                "v": "/devices/wb-mr6c_223/controls/Input 6",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 490,
+        "y": 840,
+        "wires": [
+            [
+                "bab3762c5939b17d"
+            ]
+        ]
+    },
+    {
+        "id": "b949562e9be0c6ba",
+        "type": "switch",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "/devices/wb-mr6c_223/controls/Input 6",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 490,
+        "y": 880,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "451b2cc00227f210",
+        "type": "switch",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "/devices/wb-gpio/controls/EXT1_IN13",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 170,
+        "y": 260,
+        "wires": [
+            [
+                "7a3ddb637841873e"
+            ]
+        ]
+    },
+    {
+        "id": "3e89e41f520e9da6",
+        "type": "inject",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "Пролив обливного устройства",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "1",
+        "payloadType": "num",
+        "x": 170,
+        "y": 1020,
+        "wires": [
+            [
+                "247f11c2b8bd6c40"
+            ]
+        ]
+    },
+    {
+        "id": "bb58ef9ea410496c",
+        "type": "trigger",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "Пролив обливного",
+        "op1": "",
+        "op2": "0",
+        "op1type": "pay",
+        "op2type": "str",
+        "duration": "15",
+        "extend": false,
+        "overrideDelay": true,
+        "units": "s",
+        "reset": "",
+        "bytopic": "all",
+        "topic": "topic",
+        "outputs": 1,
+        "x": 450,
+        "y": 1020,
+        "wires": [
+            [
+                "5fa1c690dafb7ae0",
+                "c7f25af6bdcc0da2"
+            ]
+        ]
+    },
+    {
+        "id": "69ebf9e9c30b649d",
+        "type": "comment",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "Мастер-клавиша",
+        "info": "",
+        "x": 180,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "873bc0a4944d4470",
+        "type": "switch",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "/devices/wb-gpio/controls/EXT1_IN11",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 170,
+        "y": 400,
+        "wires": [
+            [
+                "f946d521249b4f49"
+            ]
+        ]
+    },
+    {
+        "id": "a0745a675d0fbae0",
+        "type": "comment",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "RGB длит.нажатие",
+        "info": "",
+        "x": 190,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "7d7caee20763e9bf",
+        "type": "switch",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "/devices/wb-gpio/controls/EXT1_IN12",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 170,
+        "y": 480,
+        "wires": [
+            [
+                "7bf2cbe3719dc4c2"
+            ]
+        ]
+    },
+    {
+        "id": "fcea6f376457ad99",
+        "type": "link in",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "to buttons",
+        "links": [
+            "cab7435938e86269",
+            "5fa1c690dafb7ae0",
+            "4bb19eda3a5e0243",
+            "40eb2068834074b0",
+            "45f42ce6b879bf0c",
+            "2616ef79e8097648",
+            "63fcdb2aa0040933",
+            "85bd29499d3f412b",
+            "bab3762c5939b17d"
+        ],
+        "x": 755,
+        "y": 820,
+        "wires": [
+            [
+                "30c04c31c1950058",
+                "301532fe967b9d86"
+            ]
+        ]
+    },
+    {
+        "id": "cab7435938e86269",
+        "type": "link out",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "link out 4",
+        "mode": "link",
+        "links": [
+            "fcea6f376457ad99"
+        ],
+        "x": 625,
+        "y": 980,
+        "wires": []
+    },
+    {
+        "id": "5fa1c690dafb7ae0",
+        "type": "link out",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "link out 5",
+        "mode": "link",
+        "links": [
+            "fcea6f376457ad99"
+        ],
+        "x": 625,
+        "y": 1020,
+        "wires": []
+    },
+    {
+        "id": "4bb19eda3a5e0243",
+        "type": "link out",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "link out 6",
+        "mode": "link",
+        "links": [
+            "fcea6f376457ad99"
+        ],
+        "x": 295,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "40eb2068834074b0",
+        "type": "link out",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "link out 7",
+        "mode": "link",
+        "links": [
+            "fcea6f376457ad99"
+        ],
+        "x": 295,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "45f42ce6b879bf0c",
+        "type": "link out",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "link out 8",
+        "mode": "link",
+        "links": [
+            "fcea6f376457ad99"
+        ],
+        "x": 295,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "2616ef79e8097648",
+        "type": "link out",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "link out 9",
+        "mode": "link",
+        "links": [
+            "fcea6f376457ad99"
+        ],
+        "x": 615,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "efdcaf6bf8aa375d",
+        "type": "link in",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "link in 2",
+        "links": [
+            "28b5831cb66f127f"
+        ],
+        "x": 55,
+        "y": 260,
+        "wires": [
+            [
+                "451b2cc00227f210"
+            ]
+        ]
+    },
+    {
+        "id": "28b5831cb66f127f",
+        "type": "link out",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "link out 10",
+        "mode": "link",
+        "links": [
+            "efdcaf6bf8aa375d",
+            "6c81433b2fb9b688",
+            "bbd16709e3e00583",
+            "3bf468716655d917",
+            "664bb528ddb45d93"
+        ],
+        "x": 735,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "6c81433b2fb9b688",
+        "type": "link in",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "link in 3",
+        "links": [
+            "28b5831cb66f127f"
+        ],
+        "x": 55,
+        "y": 400,
+        "wires": [
+            [
+                "873bc0a4944d4470"
+            ]
+        ]
+    },
+    {
+        "id": "bbd16709e3e00583",
+        "type": "link in",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "link in 4",
+        "links": [
+            "28b5831cb66f127f"
+        ],
+        "x": 55,
+        "y": 480,
+        "wires": [
+            [
+                "7d7caee20763e9bf"
+            ]
+        ]
+    },
+    {
+        "id": "3bf468716655d917",
+        "type": "link in",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "link in 5",
+        "links": [
+            "28b5831cb66f127f"
+        ],
+        "x": 365,
+        "y": 840,
+        "wires": [
+            [
+                "21680d5834acf729"
+            ]
+        ]
+    },
+    {
+        "id": "664bb528ddb45d93",
+        "type": "link in",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "link in 6",
+        "links": [
+            "28b5831cb66f127f"
+        ],
+        "x": 365,
+        "y": 880,
+        "wires": [
+            [
+                "b949562e9be0c6ba"
+            ]
+        ]
+    },
+    {
+        "id": "f5acccb5122eddcc",
+        "type": "link in",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "link in 7",
+        "links": [
+            "12f3949a9dd40d5b",
+            "75aeab1ed46337c4"
+        ],
+        "x": 1085,
+        "y": 660,
+        "wires": [
+            [
+                "f9f985f4bf16897d"
+            ]
+        ]
+    },
+    {
+        "id": "12f3949a9dd40d5b",
+        "type": "link out",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "link out 11",
+        "mode": "link",
+        "links": [
+            "f5acccb5122eddcc"
+        ],
+        "x": 1345,
+        "y": 1260,
+        "wires": []
+    },
+    {
+        "id": "75aeab1ed46337c4",
+        "type": "link out",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "link out 12",
+        "mode": "link",
+        "links": [
+            "f5acccb5122eddcc"
+        ],
+        "x": 1345,
+        "y": 1300,
+        "wires": []
+    },
+    {
+        "id": "b04c748b70780b52",
+        "type": "link out",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "link out 13",
+        "mode": "link",
+        "links": [
+            "1449f763d465cfe0"
+        ],
+        "x": 295,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "2be8e441f056bdfa",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "1.15",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 460,
+        "wires": [
+            [
+                "5379a044f87ca912"
+            ]
+        ]
+    },
+    {
+        "id": "53a613381ca2f3a2",
+        "type": "switch",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "cont",
+                "v": "waterfall",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "light",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "RGBlight",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 490,
+        "y": 700,
+        "wires": [
+            [
+                "bf42cf48abe45912"
+            ],
+            [
+                "bf42cf48abe45912"
+            ],
+            [
+                "bf42cf48abe45912"
+            ]
+        ]
+    },
+    {
+        "id": "bf42cf48abe45912",
+        "type": "function",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "function 2",
+        "func": "if (msg.topic == \"waterfall\"){\nmsg.payload = 1;\nmsg.topic = \"/devices/wb-mr6c_223/controls/Input 6\";\nmsg.delay = global.get('userpoints24');\n}\n\nvar msg1={topic: \"\",payload:\"\"};\nvar msg2={topic: \"\",payload:\"\"};\nvar msg3={topic: \"\",payload:\"\"};\nvar msg4={topic: \"\",payload:\"\"};\n\nif (msg.topic == \"light\"){\n//msg1.payload = 2;\n//msg1.topic = \"/devices/wb-gpio/controls/EXT1_IN9\";\nmsg2.payload = 1;\nmsg2.topic = \"/devices/wb-gpio/controls/EXT1_IN10\";\n}\n\nif (msg.topic == \"RGBlight\"){\nmsg3.payload = 3;\nmsg3.topic = \"/devices/wb-gpio/controls/EXT1_IN11\";\nmsg4.payload = 3;\nmsg4.topic = \"/devices/wb-gpio/controls/EXT1_IN12\";\n}\n\n\nreturn [msg, msg1, msg2, msg3, msg4];",
+        "outputs": 5,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 780,
+        "wires": [
+            [
+                "bb58ef9ea410496c"
+            ],
+            [
+                "63fcdb2aa0040933"
+            ],
+            [
+                "63fcdb2aa0040933"
+            ],
+            [
+                "63fcdb2aa0040933"
+            ],
+            [
+                "63fcdb2aa0040933"
+            ]
+        ]
+    },
+    {
+        "id": "63fcdb2aa0040933",
+        "type": "link out",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "link out 14",
+        "mode": "link",
+        "links": [
+            "fcea6f376457ad99"
+        ],
+        "x": 625,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "4e2675cc74f32f24",
+        "type": "function",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "function 3",
+        "func": "var input = msg.payload\n\nif (input.includes('100% packet loss'))\n{\n    node.send({payload : \"ip route delete default\"})\n    node.send({payload : \"ip route add default via 10.201.103.1 dev eth0\"})\n}\n\nreturn null;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 1580,
+        "wires": [
+            [
+                "f4ebef6c388e9fa7"
+            ]
+        ]
+    },
+    {
+        "id": "187846032bf8067a",
+        "type": "exec",
+        "z": "70a8e5dd82d8b4b1",
+        "command": "",
+        "addpay": "payload",
+        "append": "",
+        "useSpawn": "false",
+        "timer": "30",
+        "winHide": false,
+        "oldrc": false,
+        "name": "",
+        "x": 315,
+        "y": 1595,
+        "wires": [
+            [
+                "4e2675cc74f32f24"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "336d28853fd70b8f",
+        "type": "inject",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "60 s",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "60",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "5",
+        "topic": "",
+        "payload": "ping -c 3 10.45.144.81",
+        "payloadType": "str",
+        "x": 155,
+        "y": 1595,
+        "wires": [
+            [
+                "187846032bf8067a"
+            ]
+        ]
+    },
+    {
+        "id": "0dfd7e77437a2b26",
+        "type": "exec",
+        "z": "70a8e5dd82d8b4b1",
+        "command": "",
+        "addpay": "payload",
+        "append": "",
+        "useSpawn": "false",
+        "timer": "30",
+        "winHide": false,
+        "oldrc": false,
+        "name": "",
+        "x": 910,
+        "y": 1580,
+        "wires": [
+            [],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "f4ebef6c388e9fa7",
+        "type": "delay",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "5",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 695,
+        "y": 1580,
+        "wires": [
+            [
+                "0dfd7e77437a2b26"
+            ]
+        ]
+    },
+    {
+        "id": "c7f25af6bdcc0da2",
+        "type": "debug",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "debug 1",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 700,
+        "y": 1160,
+        "wires": []
+    },
+    {
+        "id": "7a3ddb637841873e",
+        "type": "countdown",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "topic": "offoff",
+        "payloadTimerStart": "0",
+        "payloadTimerStartType": "num",
+        "payloadTimerStop": "1",
+        "payloadTimerStopType": "num",
+        "timer": "3",
+        "resetWhileRunning": true,
+        "outputOnReset": false,
+        "setTimeToNewWhileRunning": true,
+        "startCountdownOnControlMessage": false,
+        "x": 170,
+        "y": 300,
+        "wires": [
+            [
+                "4bb19eda3a5e0243",
+                "b04c748b70780b52"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "f946d521249b4f49",
+        "type": "countdown",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "topic": "/devices/wb-gpio/controls/EXT1_IN11",
+        "payloadTimerStart": "",
+        "payloadTimerStartType": "num",
+        "payloadTimerStop": "2",
+        "payloadTimerStopType": "num",
+        "timer": "1",
+        "resetWhileRunning": true,
+        "outputOnReset": false,
+        "setTimeToNewWhileRunning": true,
+        "startCountdownOnControlMessage": false,
+        "x": 170,
+        "y": 440,
+        "wires": [
+            [
+                "45f42ce6b879bf0c"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "7bf2cbe3719dc4c2",
+        "type": "countdown",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "topic": "/devices/wb-gpio/controls/EXT1_IN12",
+        "payloadTimerStart": "",
+        "payloadTimerStartType": "num",
+        "payloadTimerStop": "2",
+        "payloadTimerStopType": "num",
+        "timer": "1",
+        "resetWhileRunning": true,
+        "outputOnReset": false,
+        "setTimeToNewWhileRunning": true,
+        "startCountdownOnControlMessage": false,
+        "x": 170,
+        "y": 520,
+        "wires": [
+            [
+                "40eb2068834074b0"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "20513d81de088f88",
+        "type": "function",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "power_consumption",
+        "func": "var EN = context.get('EN') || 0;\nvar power_consumption = context.get('power_consumption') || [];\n\nvar TP = msg.topic;\nvar PL = msg.payload;\n\n\n\nswitch (TP) {\n    case \"/devices/wb-map3e_220/controls/Total AP energy\": //Общее потребление\n        power_consumption[0] = PL;\n        context.set('power_consumption', power_consumption);\n        break;\n\n    case \"/devices/wb-map3e_220/controls/AP energy L1\": //Потребление 1 фаза\n        power_consumption[1] = PL;\n        context.set('power_consumption', power_consumption);\n        break;\n\n    case \"/devices/wb-map3e_220/controls/AP energy L2\": ////Потребление 2 фаза\n        power_consumption[2] = PL;\n        context.set('power_consumption', power_consumption);\n        break;\n\n    case \"/devices/wb-map3e_220/controls/AP energy L3\": ////Потребление 3 фаза\n        power_consumption[3] = PL;\n        context.set('power_consumption', power_consumption);\n        break;\n\n    case \"/devices/wb-map3e_220/controls/Urms L1\": //Напряжение 1 фаза\n        power_consumption[4] = PL;\n        context.set('power_consumption', power_consumption);\n        break;\n    case \"/devices/wb-map3e_220/controls/Urms L2\": //Напряжение 2 фаза\n        power_consumption[5] = PL;\n        context.set('power_consumption', power_consumption);\n        break;\n    case \"/devices/wb-map3e_220/controls/Urms L3\": //Напряжение 3 фаза\n        power_consumption[6] = PL;\n        context.set('power_consumption', power_consumption);\n        break;\n\n    case \"/devices/wb-map3e_220/controls/Irms L1\": //Сила тока 1 фаза\n        power_consumption[7] = PL;\n        context.set('power_consumption', power_consumption);\n        break;\n    case \"/devices/wb-map3e_220/controls/Irms L2\": //Сила тока 2 фаза\n        power_consumption[8] = PL;\n        context.set('power_consumption', power_consumption);\n        break;\n    case \"/devices/wb-map3e_220/controls/Irms L3\": //Сила тока 3 фаза\n        power_consumption[9] = PL;\n        context.set('power_consumption', power_consumption);\n        break;\n\n    case \"/devices/wb-map3e_220/controls/Total P\": //Мощность Общая\n        power_consumption[10] = PL;\n        context.set('power_consumption', power_consumption);\n        break; \n    case \"/devices/wb-map3e_220/controls/P L1\": //Мощность 1 фаза\n        power_consumption[11] = PL;\n        context.set('power_consumption', power_consumption);\n        break; \n    case \"/devices/wb-map3e_220/controls/P L2\": //Мощность 2 фаза\n        power_consumption[12] = PL;\n        context.set('power_consumption', power_consumption);\n        break; \n    case \"/devices/wb-map3e_220/controls/P L3\": //Мощность 3 фаза\n        power_consumption[13] = PL;\n        context.set('power_consumption', power_consumption);\n        break; \n\n\n\n        \n}\n\n\nmsg = {payload: power_consumption, topic: \"power_consumption\"};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 920,
+        "y": 500,
+        "wires": [
+            [
+                "c12bdca1fa59a76e"
+            ]
+        ]
+    },
+    {
+        "id": "635be9620c095f6b",
+        "type": "function",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "zabbix",
+        "func": "var EN = context.get('EN') || 0;\n//var tempsensors = context.get('tempsensors') || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];\nvar main = context.get('main') || { power_consumption: {}, tempsensors: {} };\nvar TP = msg.topic;\nvar PL = msg.payload;\n\nmain.power_consumption.TotalAPenergy = Number(PL.power_consumption[0].toFixed(1));\nmain.power_consumption.APenergyL1 = Number(PL.power_consumption[1].toFixed(1));\nmain.power_consumption.APenergyL2 = Number(PL.power_consumption[2].toFixed(1));\nmain.power_consumption.APenergyL3 = Number(PL.power_consumption[3].toFixed(1));\nmain.power_consumption.UrmsL1 = Number(PL.power_consumption[4].toFixed(1));\nmain.power_consumption.UrmsL2 = Number(PL.power_consumption[5].toFixed(1));\nmain.power_consumption.UrmsL3 = Number(PL.power_consumption[6].toFixed(1));\nmain.power_consumption.IrmsL1 = Number(PL.power_consumption[7].toFixed(1));\nmain.power_consumption.IrmsL2 = Number(PL.power_consumption[8].toFixed(1));\nmain.power_consumption.IrmsL3 = Number(PL.power_consumption[9].toFixed(1));\nmain.power_consumption.Total_P = Number(PL.power_consumption[10].toFixed(1));\nmain.power_consumption.L1_P = Number(PL.power_consumption[11].toFixed(1));\nmain.power_consumption.L2_P = Number(PL.power_consumption[12].toFixed(1));\nmain.power_consumption.L3_P = Number(PL.power_consumption[13].toFixed(1));\n\n/*\n\n    case \"/devices/wb-map3e_220/controls/Total P\": //Мощность Общая\n        power_consumption[10] = PL;\n        context.set('power_consumption', power_consumption);\n        break; \n    case \"/devices/wb-map3e_220/controls/P L1\": //Мощность 1 фаза\n        power_consumption[11] = PL;\n        context.set('power_consumption', power_consumption);\n        break; \n    case \"/devices/wb-map3e_220/controls/P L2\": //Мощность 2 фаза\n        power_consumption[12] = PL;\n        context.set('power_consumption', power_consumption);\n        break; \n    case \"/devices/wb-map3e_220/controls/P L3\": //Мощность 3 фаза\n        power_consumption[13] = PL;\n        context.set('power_consumption', power_consumption);\n        break; \n\n*/\n\nmain.tempsensors.Sunbed1 = PL.tempsensors[0];\nmain.tempsensors.Sunbed2 = PL.tempsensors[1];\nmain.tempsensors.Sunbed3 = PL.tempsensors[2];\nmain.tempsensors.Sunbed4 = PL.tempsensors[3];\nmain.tempsensors.Sunbed5 = PL.tempsensors[4];\nmain.tempsensors.Sunbed6 = PL.tempsensors[5];\nmain.tempsensors.Floor1 = PL.tempsensors[6];\nmain.tempsensors.Botwall1 = PL.tempsensors[7];\nmain.tempsensors.Midwall1 = PL.tempsensors[8];\nmain.tempsensors.Topwall1 = PL.tempsensors[9];\nmain.tempsensors.Ceiling1 = PL.tempsensors[10];\nmain.tempsensors.Ceiling2 = PL.tempsensors[11];\nmain.tempsensors.Sunbed7 = PL.tempsensors[12];\nmain.tempsensors.Sunbed8 = PL.tempsensors[13];\nmain.tempsensors.Sunbed9 = PL.tempsensors[14];\nmain.tempsensors.Floor2 = PL.tempsensors[15];\nmain.tempsensors.Botwall2 = PL.tempsensors[16];\nmain.tempsensors.Midwall2 = PL.tempsensors[17];\nmain.tempsensors.Topwall2 = PL.tempsensors[18];\nmain.tempsensors.Ceiling3 = PL.tempsensors[19];\nmain.tempsensors.Brewer = PL.tempsensors[21];\nmain.tempsensors.Vaporiser = PL.tempsensors[22];\nmain.tempsensors.Stove = PL.tempsensors[23];\n\n\ncontext.set('main', main);\n\n/*\nЗона 0 Потельня лежак 1\nЗона 1 Потельня лежак 2\nЗона 2 Потельня лежак 3\nЗона 3 Потельня лежак 4\nЗона 4 Потельня лежак 5\nЗона 5 Потельня лежак 6\nЗона 6 Потельня пол\nЗона 7 Потельня стена низ\nЗона 8 Потельня стена середина\nЗона 9 Потельня стена верх\nЗона 10 Потельня потолок 1\nЗона 11 Потельня потолок 2\nЗона 12 Парная Лежак 1\nЗона 13 Парная лежак 2\nЗона 14 Парная лежак 3\nЗона 15 Парная пол\nЗона 16 Парная стена низ\nЗона 17 Парная стена середина\nЗона 18 Парная стена верх\nЗона 19 Парная потолок\nЗона 21 Запарник\nЗона 22 Испаритель\nЗона 23 Парогенератор\n*/\n\n\n\n/*\nswitch (TP) {\n    case \"/devices/wb-mai6_106/controls/IN 1 Temperature\": //Зона 1 Потельня лежак 1\n        tempsensors[0] = PL;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_106/controls/IN 2 Temperature\": //Зона 2 Потельня лежак 2\n        tempsensors[1] = PL;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_106/controls/IN 3 Temperature\": //Зона 3 Потельня лежак 3\n        tempsensors[2] = PL;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_106/controls/IN 4 Temperature\": //Зона 4 Потельня лежак 4\n        tempsensors[3] = PL;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_106/controls/IN 5 Temperature\": //Зона 5 Потельня лежак 5\n    tempsensors[4] = PL;\n    context.set('tempsensors', tempsensors);\n    break;\n\n    case \"/devices/wb-mai6_106/controls/IN 6 Temperature\": //Зона 6 Потельня лежак 6\n    tempsensors[5] = PL;\n    context.set('tempsensors', tempsensors);\n    break;\n\n  \n    case \"/devices/wb-mai6_211/controls/IN 1 Temperature\": //Зона 7 Потельня пол\n    tempsensors[6] = PL;\n    context.set('tempsensors', tempsensors);\n    break;\n\n    case \"/devices/wb-mai6_211/controls/IN 2 Temperature\": //Зона 8 Потельня стена низ\n    tempsensors[7] = PL;\n    context.set('tempsensors', tempsensors);\n    break;\n\n    case \"/devices/wb-mai6_211/controls/IN 3 Temperature\": //Зона 9 Потельня стена середина\n    tempsensors[8] = PL;\n    context.set('tempsensors', tempsensors);\n    break;\n\n    case \"/devices/wb-mai6_211/controls/IN 4 Temperature\": //Зона 10 Потельня стена верх\n    tempsensors[9] = PL;\n    context.set('tempsensors', tempsensors);\n    break;\n\n    case \"/devices/wb-mai6_211/controls/IN 5 Temperature\": //Зона 11 Потельня потолок 1\n    tempsensors[10] = PL;\n    context.set('tempsensors', tempsensors);\n    break;\n\n    case \"/devices/wb-mai6_211/controls/IN 6 Temperature\": //Зона 12 Потельня потолок 2\n    tempsensors[11] = PL;\n    context.set('tempsensors', tempsensors);\n    break;  \n\n\n\n    case \"/devices/wb-mai6_127/controls/IN 1 Temperature\": //Зона 13 Парная Лежак 1\n        tempsensors[12] = PL;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_127/controls/IN 2 Temperature\": //Зона 14 Парная лежак 2\n        tempsensors[13] = PL;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_127/controls/IN 3 Temperature\": //Зона 15 Парная лежак 3\n        tempsensors[14] = PL;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_127/controls/IN 4 Temperature\": //Зона 16 Парная пол\n        tempsensors[15] = PL;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_127/controls/IN 5 Temperature\": //Зона 17 Парная стена низ\n        tempsensors[16] = PL;\n        context.set('tempsensors', tempsensors);\n        break;\n\n    case \"/devices/wb-mai6_127/controls/IN 6 Temperature\": //Зона 18 Парная стена середина\n        tempsensors[17] = PL;\n        context.set('tempsensors', tempsensors);\n        break;\n\n\n\n    case \"/devices/wb-mai6_39/controls/IN 1 Temperature\": //Зона 19 Парная стена верх\n    tempsensors[18] = PL;\n    context.set('tempsensors', tempsensors);\n    break;\n\n    case \"/devices/wb-mai6_39/controls/IN 2 Temperature\": //Зона 20 Парная потолок\n    tempsensors[19] = PL;\n    context.set('tempsensors', tempsensors);\n    break;\n\n    case \"/devices/wb-mai6_39/controls/IN 3 Temperature\": //Зона\n    tempsensors[20] = PL;\n    context.set('tempsensors', tempsensors);\n    break;\n\n    case \"/devices/wb-mai6_39/controls/IN 4 Temperature\": //Зона\n    tempsensors[21] = PL;\n    context.set('tempsensors', tempsensors);\n    break;\n\n    case \"/devices/wb-mai6_39/controls/IN 5 Temperature\": //\n    tempsensors[22] = PL;\n    context.set('tempsensors', tempsensors);\n    break;\n\n    case \"/devices/wb-mai6_39/controls/IN 6 Temperature\": //\n    tempsensors[23] = PL;\n    context.set('tempsensors', tempsensors);\n    break;\n\n\n}\n*/\n\nmsg = { payload: main, topic: \"Steambath\" };\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1510,
+        "y": 420,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "be29996134ad3c09",
+        "type": "inject",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "offoff",
+        "payload": "1",
+        "payloadType": "str",
+        "x": 510,
+        "y": 80,
+        "wires": [
+            [
+                "2616ef79e8097648",
+                "c12bdca1fa59a76e"
+            ]
+        ]
+    },
+    {
+        "id": "5e16310b36ae29d0",
+        "type": "wirenboard-in",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "server": "dd19c30a143d5310",
+        "channel": [
+            "/devices/wb-mai6_39/controls/IN 3 Temperature"
+        ],
+        "outputAtStartup": true,
+        "filter": false,
+        "x": 420,
+        "y": 1900,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "904b330f16e6fa48",
+        "type": "mqtt in",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "topic": "#",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "e0f156886c78d472",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 390,
+        "y": 2120,
+        "wires": [
+            [
+                "83da85556bf2ce83"
+            ]
+        ]
+    },
+    {
+        "id": "83da85556bf2ce83",
+        "type": "switch",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "/devices/wb-mai6_39/controls/IN 3 Temperature/meta/error",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "/devices/wb-mai6_39/controls/IN 4 Temperature/meta/error",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 590,
+        "y": 2120,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "834fc766818174d5",
+        "type": "switch",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "cont",
+                "v": "devices",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 1210,
+        "y": 620,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "281dc8952d8d4a4d",
+        "type": "mqtt out",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "e0f156886c78d472",
+        "x": 870,
+        "y": 2000,
+        "wires": []
+    },
+    {
+        "id": "f81f89a8579f1e1c",
+        "type": "inject",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "Пролив обливного устройства",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "/devices/wb-mai6_39/controls/IN 3 Temperature/meta/error",
+        "payload": "1",
+        "payloadType": "num",
+        "x": 590,
+        "y": 2000,
+        "wires": [
+            [
+                "281dc8952d8d4a4d"
+            ]
+        ]
+    },
+    {
+        "id": "f9d9d9e6cbbc1d6b",
+        "type": "countdown",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "topic": "/devices/wb-mr6c_223/controls/Input 6",
+        "payloadTimerStart": "true",
+        "payloadTimerStartType": "bool",
+        "payloadTimerStop": "false",
+        "payloadTimerStopType": "bool",
+        "timer": "604800",
+        "resetWhileRunning": true,
+        "outputOnReset": true,
+        "setTimeToNewWhileRunning": true,
+        "startCountdownOnControlMessage": false,
+        "x": 670,
+        "y": 1800,
+        "wires": [
+            [
+                "a59395fcdae0ab30"
+            ],
+            [
+                "6a39fac149617fc8"
+            ]
+        ]
+    },
+    {
+        "id": "5c676fbbca71fa28",
+        "type": "inject",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 460,
+        "y": 1780,
+        "wires": [
+            [
+                "f9d9d9e6cbbc1d6b"
+            ]
+        ]
+    },
+    {
+        "id": "a59395fcdae0ab30",
+        "type": "debug",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "debug 4",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 860,
+        "y": 1760,
+        "wires": []
+    },
+    {
+        "id": "6a39fac149617fc8",
+        "type": "debug",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "debug 5",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 860,
+        "y": 1840,
+        "wires": []
+    },
+    {
+        "id": "85bd29499d3f412b",
+        "type": "link out",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "link out 3",
+        "mode": "link",
+        "links": [
+            "fcea6f376457ad99"
+        ],
+        "x": 745,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "247f11c2b8bd6c40",
+        "type": "function",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "Shedule waterfall",
+        "func": "var EN = context.get('EN') || 0;\nvar Shedule = global.get('Shedule') || { hours: \"00\", minutes: \"00\", mon: false, tue: false, wed: false, thu: false, fri: false, sat: false, sun: false };\nvar action = context.get('action');\nconst now = new Date();\ncontext.set('now', Number(now));\n// День недели (0 — воскресенье, 1 — понедельник,2 - вторник, 3 - среда, 4 - четверг, 5 - пятница, 6 — суббота)\nconst dayOfWeek = Number(now.getDay());\ncontext.set('dayOfWeek', dayOfWeek);\n\n// Текущий час (0–23)\nconst currentHour = Number(now.getHours())+5;\ncontext.set('currentHour', currentHour);\n// Текущая минута (0–59)\nconst currentMinute = Number(now.getMinutes());\ncontext.set('currentMinute', currentMinute);\n\n\nvar TP = msg.topic;\nvar PL = msg.value;\n\n\nswitch (TP) {\n    case \"shedulehours\": \n        Shedule.hours = Number(PL) > 23 ? 0 : String(PL).padStart(2, '0');\n        global.set('Shedule', Shedule);\n        break;\n\n    case \"sheduleminutes\": \n        Shedule.minutes = Number(PL) > 59 ? 0 : String(PL).padStart(2, '0');\n        global.set('Shedule', Shedule);\n        break;\n\n    case \"shedulemon\":\n        Shedule.mon = PL;\n        global.set('Shedule', Shedule);\n        break;\n\n    case \"sheduletue\":\n        Shedule.tue = PL;\n        global.set('Shedule', Shedule);\n        break;\n\n    case \"shedulewed\":\n        Shedule.wed = PL;\n        global.set('Shedule', Shedule);\n        break;\n\n    case \"shedulethu\":\n        Shedule.thu = PL;\n        global.set('Shedule', Shedule);\n        break;\n\n    case \"shedulefri\":\n        Shedule.fri = PL;\n        global.set('Shedule', Shedule);\n        break;\n\n    case \"shedulesat\":\n        Shedule.sat = PL;\n        global.set('Shedule', Shedule);\n        break;\n\n    case \"shedulesun\":\n        Shedule.sun = PL;\n        global.set('Shedule', Shedule);\n        break;\n\n        default:\n        break;\n}\n\n\nif (!action && Number(Shedule.hours) == currentHour && Number(Shedule.minutes) == currentMinute &&\n    ((dayOfWeek == 0 && Shedule.sun == true) ||\n        (dayOfWeek == 1 && Shedule.mon == true) ||\n        (dayOfWeek == 2 && Shedule.tue == true) ||\n        (dayOfWeek == 3 && Shedule.wed == true) ||\n        (dayOfWeek == 4 && Shedule.thu == true) ||\n        (dayOfWeek == 5 && Shedule.fri == true) ||\n        (dayOfWeek == 6 && Shedule.sat == true))) {\n    \n    var main = { payload: \"1\", topic: \"/devices/wb-mr6c_223/controls/Input 6\", delay: global.get('usersetpoints24') };\n    action = 1;\n}\nelse if (action && Number(Shedule.hours) == currentHour && Number(Shedule.minutes) == currentMinute &&\n    ((dayOfWeek == 0 && Shedule.sun == true) ||\n        (dayOfWeek == 1 && Shedule.mon == true) ||\n        (dayOfWeek == 2 && Shedule.tue == true) ||\n        (dayOfWeek == 3 && Shedule.wed == true) ||\n        (dayOfWeek == 4 && Shedule.thu == true) ||\n        (dayOfWeek == 5 && Shedule.fri == true) ||\n        (dayOfWeek == 6 && Shedule.sat == true))) {\n\n    var main = { payload: \"0\", topic: \"/devices/wb-mr6c_223/controls/Input 6\", delay: global.get('usersetpoints24')};\n    action = 1;\n} \nelse {\n   \n    var main = { payload: \"0\", topic: \"/devices/wb-mr6c_223/controls/Input 6\", delay: global.get('usersetpoints24')};\n    action = 0;\n}\ncontext.set('action', action);\nglobal.set('Shedule', Shedule);\nvar shed = { topic: 'Shedule', payload: Shedule };\n\nreturn [main, shed];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 910,
+        "y": 660,
+        "wires": [
+            [
+                "7b50d21ab64a9437"
+            ],
+            [
+                "c12bdca1fa59a76e"
+            ]
+        ]
+    },
+    {
+        "id": "17b24ea25de393fc",
+        "type": "switch",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "cont",
+                "v": "shedule",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 670,
+        "y": 460,
+        "wires": [
+            [
+                "247f11c2b8bd6c40"
+            ]
+        ]
+    },
+    {
+        "id": "f7cb7a6703559b36",
+        "type": "function",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "function 4",
+        "func": "global.set('Shedule', );",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 1180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a6eae830a678b604",
+        "type": "inject",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 220,
+        "y": 1180,
+        "wires": [
+            [
+                "f7cb7a6703559b36"
+            ]
+        ]
+    },
+    {
+        "id": "301532fe967b9d86",
+        "type": "switch",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "cont",
+                "v": "Input",
+                "vt": "str"
+            },
+            {
+                "t": "cont",
+                "v": "EXT",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 150,
+        "y": 680,
+        "wires": [
+            [
+                "7c821b0e14d0678c"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "bab3762c5939b17d",
+        "type": "link out",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "link out 2",
+        "mode": "link",
+        "links": [
+            "fcea6f376457ad99"
+        ],
+        "x": 635,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "e835dd5e4b35f593",
+        "type": "ui_spacer",
+        "z": "70a8e5dd82d8b4b1",
+        "name": "spacer",
+        "group": "6de2520f4ea787f0",
+        "order": 7,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "e0f156886c78d472",
+        "type": "mqtt-broker",
+        "name": "Banya_Maksim",
+        "broker": "127.0.0.1",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "46ca24a38dad0cb2",
+        "type": "websocket-listener",
+        "path": "/control/",
+        "wholemsg": "false"
+    },
+    {
+        "id": "6de2520f4ea787f0",
+        "type": "ui_group",
+        "name": "Trends",
+        "tab": "11312b111e2f4e84",
+        "order": 1,
+        "disp": true,
+        "width": 25,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "1105773d56ac7fb8",
+        "type": "ui_group",
+        "name": "Mode selection",
+        "tab": "c9ccd80193bc91eb",
+        "order": 1,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "1ae920aae8f99208",
+        "type": "ui_group",
+        "name": "User setpopints",
+        "tab": "c9ccd80193bc91eb",
+        "order": 3,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "351cf7d91e0cbb56",
+        "type": "ui_group",
+        "name": "Current setpoints",
+        "tab": "c9ccd80193bc91eb",
+        "order": 2,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "dd19c30a143d5310",
+        "type": "wirenboard-server",
+        "name": "",
+        "host": "127.0.0.1",
+        "mqtt_port": 1883,
+        "mqtt_username": "",
+        "mqtt_password": ""
+    },
+    {
+        "id": "11312b111e2f4e84",
+        "type": "ui_tab",
+        "name": "Trends",
+        "icon": "",
+        "order": 2,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "c9ccd80193bc91eb",
+        "type": "ui_tab",
+        "name": "Main",
+        "icon": "dashboard",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "272d92c79f62b794",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6",
+            "node-red-contrib-countdown": "1.3.2",
+            "node-red-contrib-wirenboard": "3.11.0"
+        }
+    }
+]

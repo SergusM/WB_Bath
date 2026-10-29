@@ -1,0 +1,506 @@
+/*.elemv * {
+	position:absolute;
+}*/
+@font-face {
+font-family: 'ds-arabic';
+src: url('../fonts/ds-arabic.ttf');
+}
+@font-face {
+font-family: 'slavic';
+src: url('../fonts/slavic.ttf');
+}
+@font-face {
+font-family: 'roman';
+src: url('../fonts/roman.otf');
+}
+@font-face {
+font-family: 'summer';
+src: url('../fonts/summer-crafts.ttf');
+}
+@font-face {
+font-family: 'neon';
+src: url('../fonts/neon-tubes-2.ttf');
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.1; } /* Полупрозрачное состояние */
+  100% { opacity: 1; }
+}
+
+/*
+.elemv {
+	float:left;
+	position:relative;
+	width:240px;
+	margin: 1px 1px 1px 1px;
+	min-height:168px;
+	background:#333;
+	display:inline-block;
+}
+*/
+
+.elemv {
+	float:left;
+	position:relative;
+	width:33%;
+	margin: 1px 1px 1px 1px;
+	min-height:230px;
+	background: rgba(0,0,0,0.5);
+	
+	transition: min-height 0.4s ease-in-out;
+	background-size: cover;
+	background-position: center;
+	display:inline-block;
+	border-radius: 20px;
+    overflow: hidden;
+}
+
+input[type="checkbox" i] {
+    background-color: initial;
+    cursor: default;
+    appearance: auto;
+	margin: 3px 3px 3px 4px;
+    padding: initial;
+    border: initial;
+	width: 20px;
+    height: 20px;
+}
+
+input[type="checkbox"]:checked{
+  background-color: #4CAF50;
+  border-color: #4CAF50;
+}
+
+#button1 {
+	
+	background-image: url("../img/hamam.jpg");
+	
+}
+#button2 {
+	background-image: url("../img/russian_bath.jpg");
+	
+}
+#button3 {
+	
+	background-image: url("../img/IR_sauna.jpg");
+	
+}
+#button4 {
+	
+	background-image: url("../img/steam_bath.jpg");
+	
+}
+#button5 {
+	
+	background-image: url("../img/beach.jpg");
+	
+}
+#button6 {
+	
+	background-image: url("../img/beach_on_sunset.jpg");
+	
+}
+#button7 {
+	
+	background-image: url("../img/SPA.jpg");
+	
+}
+
+#button8 {
+	
+	background-image: url("../img/user2.jpg");
+	
+}
+#button9 {
+	
+	background-image: url("../img/off.jpeg");
+}
+
+.elemv10 {
+	
+	float:left;
+	position:relative;
+	width:33%;
+	margin: 1px 1px 1px 1px;
+	min-height:179px;
+	/*background-image: url("../img/user2.jpg");*/
+	background: rgba(0,0,0,0.5);
+	background-size: cover; background-position: center;
+	display:inline-block;
+}
+
+.elemv11 {
+	
+	float:left;
+	position:relative;
+	width:33%;
+	margin: 1px 1px 1px 1px;
+	min-height:240px;
+	transition: min-height 0.4s ease-in-out;
+	/*background-image: url("../img/user2.jpg");*/
+	background: rgba(0,1,0,0.5);
+	background-size: cover; background-position: center;
+	display:inline-block;
+}
+
+.elemv12 {
+	
+	float:left;
+	position:relative;
+	width:99%;
+	margin: 0% 0% 0% 0%;
+	height:490px;
+	/*background-image: url("../img/user2.jpg");*/
+	background: rgba(0,0,0,0);
+	background-size: cover; background-position: center;
+	display:inline-block;
+}
+
+.heating {
+	
+	position: absolute;
+	left: 1%;
+	top: 0%;
+	width:99%;
+	margin: 0% 0% 0% 0%;
+	height:490px;
+	
+	/* background: rgba(0,0,0,0); */
+	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
+	font-size: 5vh;
+	
+    color: #0eb8c0;
+    text-align: center;
+	
+	background-size: cover;
+	background-position: center;
+	display:block;
+	border-radius: 20px;
+    overflow: hidden;
+}
+
+.hideV {
+	width:100%;
+	height:100%;
+	background:rgba(0, 0, 0, 0.5);
+	display:none;
+}
+
+.serviceV {
+	width:100%;
+	height:91%;
+	position: absolute;
+}
+
+.serviceV i {
+	top:35%;
+	left:50%;
+	transform:translate(-50%, -50%);
+	font-size:27px;
+	color:#0eb8c0;
+	position: absolute;
+}
+
+
+
+.btTitleV {
+	
+	width: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
+	font-size: 35px;
+    color: #0eb8c0;
+    text-align: center;
+	background: rgba(0,0,0,0.7);
+	height: 100%;
+}
+
+
+
+
+.temperature_sensor {
+	
+	position:absolute;
+	top: 85px;
+	left: 150px;
+	height: auto;
+	width: 25%;
+	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
+	font-size: larger;
+    color: #eeeeee;
+    text-align: left;
+}
+.temperature_sensor1 {
+	
+	position:absolute;
+	top: 85px;
+	left: 150px;
+	height: auto;
+	width: auto;
+	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
+	font-size: 4vh;
+    color: #eeeeee;
+    text-align: left;
+}
+
+
+
+.temperature_setpoint {
+	
+	position:absolute;
+	top: 85px;
+	left: 24px;
+	height: auto;
+	width: 7%;
+	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
+	font-size: 4vh;
+    color: #eeeeee;
+    text-align: center;
+	background: rgba(0,0,0,0);
+	border: none;
+}
+
+.temperature_setpoint::placeholder {
+	
+	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
+	font-size: 4vh;
+    color: #eeeeee;
+    text-align: center;
+	opacity: 1;
+}
+
+.subsribe {
+	
+	height: auto;
+	text-align: center;
+	position: absolute;
+	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
+	font-size: 1.5vh;
+    color: #eeeeee;
+    float: center;
+	width: 150%;
+    left: -25%;
+	background: rgba(0,0,0,0.3);
+	
+}
+.logs {
+	position:relative;
+	height: auto;
+	width: 100%;
+	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
+	font-size: 2.5vh;
+    color: #eeeeee;
+    text-align: left;
+	float: left;
+	
+}
+
+.logstime {
+	position:relative;
+	height: auto;
+	width: 40%;
+	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
+	font-size: 2vh;
+    color: #eeeeee;
+    text-align: left;
+	float: right;
+}
+
+@media (max-width: 1090px) {
+	
+  
+
+.elemv {
+	min-height: 100px;
+	height: 100px;
+    width: 100px;
+    margin: 20px 2%;
+	border-radius: 10px;
+    padding: 0px 0px 0px 0px;
+    background: RGBA(0, 0, 0, 0);
+    background-size: cover; background-position: center;
+    overflow: visible;
+	display:inline-block;
+	position:relative;
+   
+}
+
+button1 {
+	
+	background-image: url("../img/hamam.jpg");
+	
+}
+#button2 {
+	background-image: url("../img/russian_bath.jpg");
+	
+}
+#button3 {
+	
+	background-image: url("../img/IR_sauna.jpg");
+	
+}
+#button4 {
+	
+	background-image: url("../img/steam_bath.jpg");
+	
+}
+#button5 {
+	
+	background-image: url("../img/beach.jpg");
+	
+}
+#button6 {
+	
+	background-image: url("../img/beach_on_sunset.jpg");
+	
+}
+#button7 {
+	
+	background-image: url("../img/SPA.jpg");
+	
+}
+
+#button8 {
+	
+	background-image: url("../img/user2.jpg");
+	
+}
+#button9 {
+	
+	background-image: url("../img/off.jpeg");
+}
+
+.elemv10 {
+	
+	
+	float:left;
+	position:relative;
+	width:340px;
+	margin: 1px 1px 1px 1px;
+	min-height:179px;
+	background: rgba(0,0,0,0.5);
+	background-size: cover; background-position: center;
+	display:inline-block;
+}
+
+.elemv11 {
+	
+	float:left;
+	position:relative;
+	width:340px;
+	margin: 1px 1px 1px 1px;
+	min-height:240px;
+	transition: min-height 0.4s ease-in-out;
+	background: rgba(0,1,0,0.5);
+	
+	display:inline-block;
+}
+
+.elemv12 {
+	
+	float:left;
+	position:relative;
+	width:0;
+	height: 0;
+	margin: 0 0;
+	min-height:0;
+	background: rgba(0,0,0,0);
+	overflow: hidden;
+	display:inline-block;
+}
+
+.hideV {
+	width:100%;
+	height:100%;
+	background:rgba(0, 0, 0, 0.5);
+	display:none;
+}
+
+.serviceV {
+	width:100%;
+	height:91%;
+	position: absolute;
+}
+
+.serviceV i {
+	top:35%;
+	left:50%;
+	transform:translate(-50%, -50%);
+	font-size:27px;
+	color:#0eb8c0;
+	position: absolute;
+}
+
+
+
+.btTitleV {
+	
+	visibility: hidden;
+    width: 100%;
+    
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
+    font-size: 13px;
+    color: #0eb8c0;
+    text-align: center;
+    background: rgba(0,0,0,0);
+    height: auto;
+    position: absolute;
+    top: 100px;
+	
+}
+
+
+.temperature_sensor {
+	
+	position:absolute;
+	top: 85px;
+	left: 150px;
+	height: auto;
+	width: 25%;
+	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
+	font-size: larger;
+    color: #eeeeee;
+    text-align: left;
+}
+.temperature_sensor1 {
+	
+	position:absolute;
+	top: 85px;
+	left: 150px;
+	height: auto;
+	width: 25%;
+	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
+	font-size: 45px;
+    color: #eeeeee;
+    text-align: left;
+}
+
+
+
+.temperature_setpoint {
+	
+	position:absolute;
+	top: 85px;
+	left: 24px;
+	height: auto;
+	width: 25%;
+	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
+	font-size: 45px;
+    color: #eeeeee;
+    text-align: center;
+	background: rgba(0,0,0,0);
+	border: none;
+}
+
+.temperature_setpoint::placeholder {
+	
+	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
+	font-size: larger;
+    color: #eeeeee;
+    text-align: center;
+	opacity: 1;
+}
+
+  
+  
+}
