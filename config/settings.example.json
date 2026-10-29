@@ -20,7 +20,7 @@
     }
   },
   "waterfall": {
-    "duration": 15,
+    "duration": 7,
     "schedule": {
       "enabled": false,
       "times": [

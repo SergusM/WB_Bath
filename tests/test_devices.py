@@ -120,10 +120,11 @@ def test_master_long_press_offoff(rig):
 # --- обливное ------------------------------------------------------------------
 
 def test_waterfall_exact_duration(rig):
-    rig.cmd(cmd="waterfall_set_duration", duration=30)
+    d = cfg.WATERFALL_MAX_S
+    assert rig.cmd(cmd="waterfall_set_duration", duration=d)["ok"]
     rig.press(cfg.BTN_WATERFALL)
     assert rig.on(cfg.R_WATERFALL)
-    rig.advance(29)
+    rig.advance(d - 1)
     assert rig.on(cfg.R_WATERFALL)
     rig.advance(1.1)
     assert not rig.on(cfg.R_WATERFALL)

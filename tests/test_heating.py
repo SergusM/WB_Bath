@@ -170,14 +170,14 @@ def test_settings_saved_but_modes_not_restored(rig, tmp_path):
 
     rig.cmd(cmd="set_manual", room="steam")
     rig.cmd(cmd="set_manual_setpoint", room="steam", kind="ceiling", value=70)
-    rig.cmd(cmd="waterfall_set_duration", duration=20)
+    rig.cmd(cmd="waterfall_set_duration", duration=cfg.WATERFALL_MAX_S)
     rig.ctl.shutdown()
 
     store = SettingsStore(str(tmp_path / "settings.json"))
     ctl = BathController(FakeGateway(), store)
     ctl.start()
     assert store.settings.manual[Room.STEAM].ceiling == 70
-    assert store.settings.waterfall_duration == 20
+    assert store.settings.waterfall_duration == cfg.WATERFALL_MAX_S
     assert ctl.heating.mode[Room.STEAM] is Preset.OFF
 
 
