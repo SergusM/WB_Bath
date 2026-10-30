@@ -13,7 +13,13 @@ window.LightView = (function () {
   function create(el, store) {
     let built = false;
     let cards = [];
-    let masked, masterBtn;
+    let masked, masterBtn, masterLabel;
+
+    // Видимое состояние бра: под маской мастер-клавиши лампа погашена
+    function lit(room) {
+      const l = store.state.light;
+      return !!l.light[room] && !l.masked;
+    }
 
     function setLight(room, on) {
       const cur = store.state.light.light;
@@ -25,42 +31,48 @@ window.LightView = (function () {
     function build(info) {
       const grid = h("div", {class: "grid2"});
       cards = Object.keys(info.rooms).map((room) => {
-        const onBtn = h("button", {type: "button"}, "вкл");
-        const offBtn = h("button", {type: "button"}, "выкл");
-        onBtn.addEventListener("click", () => act(onBtn, setLight(room, true)));
-        offBtn.addEventListener("click", () => act(offBtn, setLight(room, false)));
         const swatches = info.rgb_modes.map((rgb, mode) => {
           const c = COLORS[rgb.join(",")];
           const sw = h("button", {
             type: "button",
             class: "swatch" + (c ? "" : " off"),
-            style: c ? "background:" + c[0] : null,
+            style: c ? "background:" + c[0] + ";--glow:" + c[0] : null,
             title: c ? c[1] : "выключена",
             "aria-label": "Подсветка: " + (c ? c[1] : "выключена"),
           });
           sw.addEventListener("click", () => act(sw, store.send("set_rgb", {room, mode})));
           return sw;
         });
+        // Лампа — сама кнопка бра: нажатие включает или гасит, лампа светится
+        // или тускнеет вместе с выходом. Лента так же показывает подсветку.
+        const bulbImg = h("img", {src: "img/icons/bulb.png", alt: ""});
+        const bulbText = h("small");
+        const bulb = h("button", {class: "pic-btn ctl", type: "button", "aria-label": "Бра: " + info.rooms[room]},
+          bulbImg, h("b", {}, "Бра"), bulbText);
+        bulb.addEventListener("click", () => act(bulb, setLight(room, !lit(room))));
+        const strip = h("img", {class: "card-icon", src: "img/icons/rgb.png", alt: ""});
         const card = h("div", {class: "card"},
-          h("div", {class: "card-head"}, h("span", {class: "card-title"}, info.rooms[room]),
-            h("span", {class: "row-gap", style: "align-items:center"},
-              h("span", {class: "muted"}, "Бра"), h("span", {class: "seg ctl"}, onBtn, offBtn))),
-          h("div", {class: "muted", style: "margin:4px 0 10px"}, "Подсветка RGB"),
-          h("div", {class: "swatches ctl"}, swatches));
+          h("div", {class: "card-head"}, h("span", {class: "card-title"}, info.rooms[room])),
+          h("div", {class: "light-room"}, bulb,
+            h("div", {class: "device-body"},
+              h("div", {class: "title-row", style: "margin-bottom:10px"}, strip,
+                h("span", {style: "font-size:16px"}, "Подсветка RGB")),
+              h("div", {class: "swatches ctl"}, swatches))));
         grid.appendChild(card);
-        return {room, onBtn, offBtn, swatches};
+        return {room, swatches, bulb, bulbImg, bulbText, strip};
       });
 
       masked = h("div", {class: "card", hidden: true},
         "Свет погашен мастер-клавишей. Повторное нажатие «Мастер» вернёт прежнюю сцену.");
-      const nextBtn = h("button", {class: "btn ctl", type: "button"}, "Следующий режим бра");
-      nextBtn.addEventListener("click", () => act(nextBtn, store.send("light_next")));
-      masterBtn = h("button", {class: "btn ctl", type: "button"}, "Мастер");
+      const iconBtn = (icon, label) => h("button", {class: "icon-btn ctl", type: "button"},
+        h("img", {src: "img/icons/" + icon + ".png", alt: ""}), label);
+      masterLabel = h("span", {}, "Мастер");
+      masterBtn = iconBtn("rgb", masterLabel);
       masterBtn.addEventListener("click", () => act(masterBtn, store.send("master")));
-      const offBtn = h("button", {class: "btn ctl", type: "button"}, "Выключить весь свет");
+      const offBtn = iconBtn("offoff", "Выключить весь свет");
       offBtn.addEventListener("click", () => act(offBtn, store.send("all_light_off")));
 
-      el.append(grid, masked, h("div", {class: "row-gap"}, nextBtn, masterBtn, offBtn));
+      el.append(grid, masked, h("div", {class: "light-actions"}, masterBtn, offBtn));
       built = true;
     }
 
@@ -70,13 +82,16 @@ window.LightView = (function () {
         if (!built) build(info);
         const l = state.light;
         for (const c of cards) {
-          c.onBtn.classList.toggle("on", !!l.light[c.room]);
-          c.offBtn.classList.toggle("on", !l.light[c.room]);
           c.swatches.forEach((sw, mode) => sw.classList.toggle("on", l.rgb[c.room] === mode));
+          const on = lit(c.room);
+          c.bulb.classList.toggle("on", on);
+          c.bulbImg.classList.toggle("dim", !on);
+          setText(c.bulbText, on ? "горит" : "выключено");
+          c.strip.classList.toggle("dim", !l.rgb[c.room] || l.masked);
         }
         masked.hidden = !l.masked;
         masterBtn.classList.toggle("on", l.masked);
-        setText(masterBtn, l.masked ? "Мастер: вернуть свет" : "Мастер");
+        setText(masterLabel, l.masked ? "Мастер: вернуть свет" : "Мастер");
       },
     };
   }

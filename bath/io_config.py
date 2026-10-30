@@ -100,26 +100,29 @@ class RoomSetpoints:
 
 
 class Preset(Enum):
-    """Предустановленные режимы. Значение — топик режима в старом потоке."""
+    """Предустановленные режимы. Значение — топик режима в старом потоке.
+
+    Порядок перечисления — порядок в списке режимов интерфейса.
+    """
     OFF = "off"
-    BEACH_AT_SUNSET = "beach_at_sunset"
-    BEACH = "beach"
-    IR_SAUNA = "IR_sauna"
     HAMAM = "hamam"
-    SPA = "SPA"
     STEAM_BATH = "steam_bath"
     RUSSIAN_BATH = "russian_bath"
+    BEACH_AT_SUNSET = "beach_at_sunset"
+    BEACH = "beach"
+    SPA = "SPA"
+    IR_SAUNA = "IR_sauna"
 
 
 PRESET_TITLES = {
-    Preset.OFF: "Выкл",
+    Preset.OFF: "Выключено",
+    Preset.HAMAM: "Хамам",
+    Preset.STEAM_BATH: "Паровая сауна",
+    Preset.RUSSIAN_BATH: "Русская баня",
     Preset.BEACH_AT_SUNSET: "Вечерний пляж",
     Preset.BEACH: "Пляж",
-    Preset.IR_SAUNA: "ИК-сауна",
-    Preset.HAMAM: "Хамам",
     Preset.SPA: "СПА",
-    Preset.STEAM_BATH: "Паровая баня",
-    Preset.RUSSIAN_BATH: "Русская баня",
+    Preset.IR_SAUNA: "ИК Сауна",
 }
 
 
@@ -502,6 +505,7 @@ if __name__ == "__main__":
 
     print("\n== Уставки режимов ==")
     print(f"  {'':<14}" + "".join(f"{k.value[:9]:>10}" for k in ZoneKind))
-    for preset, sp in PRESET_SETPOINTS.items():
+    for preset in Preset:
+        sp = PRESET_SETPOINTS[preset]
         print(f"  {PRESET_TITLES[preset]:<14}"
               + "".join(f"{sp.get(k):>10}" for k in ZoneKind))

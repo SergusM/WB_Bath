@@ -50,7 +50,7 @@ ssh root@<wb> "cd /mnt/data/wb_bath && pip3 install -r requirements.txt && cp de
 - **Обливное** — пролив, длительность, расписание.
 - **Журнал** — аварии и счётчик электроэнергии.
 
-На планшете навигация слева, на телефоне (уже 768 px) — внизу.
+На планшете навигация слева, на телефоне (уже 768 px) — внизу. Оформление в духе старой панели: тёмная тема, объёмные иконки разделов, металлические кнопки вентиляции со светящимся кольцом, фото текущего режима за карточкой комнаты. Картинки взяты из `html/img/` и уменьшены (`web/img/`, около 1,1 МБ).
 
 Адрес брокера по умолчанию — `ws://<хост страницы>:18883/mqtt`, штатный websocket-порт mosquitto на WB. Поменять его можно в `web/js/config.js` или параметром `?mqtt=ws://…`.
 
@@ -88,7 +88,7 @@ python -m http.server 8090 --directory web
 
 | cmd | Аргументы |
 |---|---|
-| `set_preset` | `room`, `preset`: `off`, `beach_at_sunset`, `beach`, `IR_sauna`, `hamam`, `SPA`, `steam_bath`, `russian_bath` |
+| `set_preset` | `room`, `preset`: `off`, `hamam`, `steam_bath`, `russian_bath`, `beach_at_sunset`, `beach`, `SPA`, `IR_sauna` |
 | `set_manual` | `room` |
 | `set_manual_setpoint` | `room`, `kind` (`FLOOR`, `BENCH`, `WALL_LOW`, `WALL_MID`, `WALL_TOP`, `CEILING`, `STOVE`), `value` |
 | `room_off` | `room` |

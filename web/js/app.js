@@ -46,7 +46,7 @@
     const active = state.alarms.active.length;
     const unacked = state.alarms.unacked;
     badge.hidden = !active && !unacked;
-    setText(badge, active ? active + " " + plural(active, "авария", "аварии", "аварий")
+    setText(document.getElementById("alarm-text"), active ? active + " " + plural(active, "авария", "аварии", "аварий")
                           : unacked + " " + plural(unacked, "новая запись", "новые записи", "новых записей"));
   }
   badge.addEventListener("click", () => { location.hash = "#journal"; });

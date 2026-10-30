@@ -12,10 +12,12 @@ window.WaterfallView = (function () {
     let dirty = false;
 
     function build(info) {
-      left = h("div", {class: "big", style: "font-size:56px;margin:6px 0"});
+      left = h("div", {class: "big", style: "font-size:44px"});
       ofLabel = h("div", {class: "muted"});
-      pourBtn = h("button", {class: "btn on ctl", type: "button", style: "flex:1"}, "Пролить");
-      stopBtn = h("button", {class: "btn ctl", type: "button", style: "flex:1"}, "Стоп");
+      // Большая иконка лейки — сама кнопка пролива, как в старой панели
+      pourBtn = h("button", {class: "pour-btn ctl", type: "button", "aria-label": "Пролить"},
+        h("img", {src: "img/icons/waterfall.png", alt: ""}));
+      stopBtn = h("button", {class: "btn ctl", type: "button", style: "min-width:140px"}, "Стоп");
       pourBtn.addEventListener("click", () => act(pourBtn, store.send("waterfall_pour")));
       stopBtn.addEventListener("click", () => act(stopBtn, store.send("waterfall_stop")));
 
@@ -60,13 +62,16 @@ window.WaterfallView = (function () {
       resetBtn.addEventListener("click", () => { dirty = false; draft = null; render(); });
 
       el.append(h("div", {class: "grid2"},
-        h("div", {class: "card", style: "text-align:center"},
-          h("div", {class: "card-title"}, "Пролив"), left, ofLabel,
-          h("div", {class: "row-gap", style: "margin-top:14px"}, pourBtn, stopBtn),
-          h("div", {class: "row-gap", style: "align-items:center;flex-wrap:nowrap;margin-top:18px;text-align:left"},
+        h("div", {class: "card pour"},
+          h("div", {class: "card-title"}, "Пролив"),
+          pourBtn, h("div", {class: "hint"}, "нажмите на лейку, чтобы пролить"),
+          left, ofLabel, stopBtn,
+          h("div", {class: "row-gap", style: "align-items:center;flex-wrap:nowrap;align-self:stretch;margin-top:18px;text-align:left"},
             h("span", {class: "muted"}, "Длительность"), slider, sliderOut)),
         h("div", {class: "card"},
-          h("div", {class: "card-head"}, h("span", {class: "card-title"}, "Расписание"), enSeg),
+          h("div", {class: "card-head"},
+            h("span", {class: "title-row"}, h("img", {class: "card-icon", src: "img/icons/waterfall_dark.png", alt: ""}),
+              h("span", {class: "card-title"}, "Расписание")), enSeg),
           h("div", {class: "muted", style: "margin-bottom:8px"}, "Время"), timesEl,
           h("div", {class: "row-gap", style: "margin:10px 0 14px"}, timeInput, addBtn),
           h("div", {class: "muted", style: "margin-bottom:8px"}, "Дни недели"), daysEl,
@@ -102,9 +107,10 @@ window.WaterfallView = (function () {
         if (!state || !info) return;
         if (!built) build(info);
         const w = state.waterfall;
-        setText(left, w.active ? mmss(w.left_s) : "—");
-        setText(ofLabel, w.active ? "идёт пролив, всего " + w.duration + " с" : "длительность " + w.duration + " с");
-        pourBtn.classList.toggle("on", !w.active);
+        setText(left, w.active ? mmss(w.left_s) : w.duration + " с");
+        setText(ofLabel, w.active ? "идёт пролив, всего " + w.duration + " с" : "длительность пролива");
+        pourBtn.classList.toggle("active", w.active);
+        stopBtn.hidden = !w.active;
         if (document.activeElement !== slider) {
           slider.value = w.duration;
           setText(sliderOut, w.duration + " с");

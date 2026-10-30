@@ -38,7 +38,9 @@ window.JournalView = (function () {
       metricsEl = h("div", {class: "metrics"});
       el.append(
         h("div", {class: "card"},
-          h("div", {class: "card-head"}, h("span", {class: "card-title"}, "Аварии"), ackBtn), list),
+          h("div", {class: "card-head"},
+            h("span", {class: "title-row"}, h("img", {class: "card-icon", src: "img/icons/danger.png", alt: ""}),
+              h("span", {class: "card-title"}, "Аварии")), ackBtn), list),
         h("div", {class: "card"},
           h("div", {class: "card-head"}, h("span", {class: "card-title"}, "Электроэнергия"),
             h("span", {class: "muted"}, "счётчик wb-map3e")), metricsEl));

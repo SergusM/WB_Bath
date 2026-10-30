@@ -6,7 +6,7 @@
  "presets": [
   {
    "preset": "off",
-   "title": "Выкл",
+   "title": "Выключено",
    "setpoints": {
     "floor": 0,
     "bench": 0,
@@ -15,6 +15,45 @@
     "wall_top": 0,
     "ceiling": 0,
     "stove": 0
+   }
+  },
+  {
+   "preset": "hamam",
+   "title": "Хамам",
+   "setpoints": {
+    "floor": 42,
+    "bench": 42,
+    "wall_low": 42,
+    "wall_mid": 0,
+    "wall_top": 0,
+    "ceiling": 0,
+    "stove": 250
+   }
+  },
+  {
+   "preset": "steam_bath",
+   "title": "Паровая сауна",
+   "setpoints": {
+    "floor": 42,
+    "bench": 42,
+    "wall_low": 44,
+    "wall_mid": 52,
+    "wall_top": 56,
+    "ceiling": 60,
+    "stove": 350
+   }
+  },
+  {
+   "preset": "russian_bath",
+   "title": "Русская баня",
+   "setpoints": {
+    "floor": 42,
+    "bench": 42,
+    "wall_low": 54,
+    "wall_mid": 66,
+    "wall_top": 76,
+    "ceiling": 80,
+    "stove": 450
    }
   },
   {
@@ -44,32 +83,6 @@
    }
   },
   {
-   "preset": "IR_sauna",
-   "title": "ИК-сауна",
-   "setpoints": {
-    "floor": 42,
-    "bench": 42,
-    "wall_low": 44,
-    "wall_mid": 52,
-    "wall_top": 56,
-    "ceiling": 60,
-    "stove": 0
-   }
-  },
-  {
-   "preset": "hamam",
-   "title": "Хамам",
-   "setpoints": {
-    "floor": 42,
-    "bench": 42,
-    "wall_low": 42,
-    "wall_mid": 0,
-    "wall_top": 0,
-    "ceiling": 0,
-    "stove": 250
-   }
-  },
-  {
    "preset": "SPA",
    "title": "СПА",
    "setpoints": {
@@ -83,8 +96,8 @@
    }
   },
   {
-   "preset": "steam_bath",
-   "title": "Паровая баня",
+   "preset": "IR_sauna",
+   "title": "ИК Сауна",
    "setpoints": {
     "floor": 42,
     "bench": 42,
@@ -92,20 +105,7 @@
     "wall_mid": 52,
     "wall_top": 56,
     "ceiling": 60,
-    "stove": 350
-   }
-  },
-  {
-   "preset": "russian_bath",
-   "title": "Русская баня",
-   "setpoints": {
-    "floor": 42,
-    "bench": 42,
-    "wall_low": 54,
-    "wall_mid": 66,
-    "wall_top": 76,
-    "ceiling": 80,
-    "stove": 450
+    "stove": 0
    }
   }
  ],

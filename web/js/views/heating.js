@@ -56,7 +56,7 @@ window.HeatingView = (function () {
         return {kind, field: kind.toLowerCase(), indexes: zones.map((z) => z.index), value, step, cells};
       });
 
-      const card = h("div", {class: "card"},
+      const card = h("div", {class: "card room"},
         h("div", {class: "card-head"}, h("span", {class: "card-title"}, info.rooms[room]), status),
         select, hint, table);
       return {room, el: card, status, select, hint, rows};
@@ -68,6 +68,10 @@ window.HeatingView = (function () {
       const manual = mode === MANUAL;
       const off = mode === "off";
       if (document.activeElement !== r.select && r.select.value !== mode) r.select.value = mode;
+      // Фото режима за карточкой, как в старой панели
+      const photo = "url(img/modes/" + mode + ".jpg)";
+      if (r.photo !== photo) { r.el.style.backgroundImage = photo; r.photo = photo; }
+      r.el.classList.toggle("manual", manual);
 
       const byIndex = new Map(state.zones.map((z) => [z.index, z]));
       const zones = [].concat(...r.rows.map((row) => row.indexes.map((i) => byIndex.get(i))));
