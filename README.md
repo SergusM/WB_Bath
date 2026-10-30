@@ -1,6 +1,6 @@
 # Контроллер бани на Wiren Board
 
-Логика написана на Python и заменяет поток Node-RED (`flows.json`). Связь с контроллером идёт через [python2wb](https://pypi.org/project/python2wb/). Железо описано в `io_config.py`, разбор старого потока лежит в `IO_list.md` и `UI_vs_flows.md`.
+Логика написана на Python и заменяет поток Node-RED (`flows.json`). Связь с контроллером идёт через [python2wb](https://pypi.org/project/python2wb/). Железо описано в `bath/io_config.py`, разбор старого потока лежит в `IO_list.md` и `UI_vs_flows.md`.
 
 ## Модули `bath/`
 
@@ -33,7 +33,7 @@ python -m pytest
 ## Установка на контроллер
 
 ```bash
-scp -r bath io_config.py requirements.txt deploy root@<wb>:/mnt/data/wb_bath/
+scp -r bath requirements.txt deploy root@<wb>:/mnt/data/wb_bath/
 ssh root@<wb> "cd /mnt/data/wb_bath && pip3 install -r requirements.txt && cp deploy/wb-bath.service /etc/systemd/system/ && systemctl daemon-reload && systemctl enable --now wb-bath"
 ```
 

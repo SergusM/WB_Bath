@@ -10,9 +10,8 @@ import time
 from datetime import datetime
 from typing import Callable, Dict, Optional
 
-import io_config as cfg
-from io_config import Room
-
+from . import io_config as cfg
+from .io_config import Room
 from .alarms import AlarmLog
 from .api import (TOPIC_EVENT, TOPIC_INFO, TOPIC_ONLINE, CommandApi,
                   StatePublisher, build_info)

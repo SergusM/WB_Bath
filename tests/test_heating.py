@@ -1,5 +1,5 @@
-import io_config as cfg
-from io_config import Preset, Room, ZoneKind
+from bath import io_config as cfg
+from bath.io_config import Preset, Room, ZoneKind
 
 from bath.heating import hysteresis
 from bath.gateway import path

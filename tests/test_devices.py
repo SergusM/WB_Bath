@@ -1,7 +1,7 @@
 from datetime import datetime
 
-import io_config as cfg
-from io_config import Room, VentMode
+from bath import io_config as cfg
+from bath.io_config import Room, VentMode
 
 STEAM_SHOWER_BTN = cfg.VENT_BUTTONS[Room.SPA][VentMode.STEAM_SHOWER]
 AIRING_BTN = cfg.VENT_BUTTONS[Room.STEAM][VentMode.AIRING]

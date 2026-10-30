@@ -5,8 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import List, Optional, Tuple
 
-import io_config as cfg
-
+from . import io_config as cfg
 from .gateway import BaseGateway
 from .storage import WEEKDAYS, SettingsStore, WaterfallSchedule
 

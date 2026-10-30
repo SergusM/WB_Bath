@@ -4,9 +4,8 @@ from __future__ import annotations
 
 from typing import Dict
 
-import io_config as cfg
-from io_config import Room
-
+from . import io_config as cfg
+from .io_config import Room
 from .gateway import BaseGateway
 
 RGB_RELAYS = {Room.SPA: cfg.RGB_SPA, Room.STEAM: cfg.RGB_STEAM}

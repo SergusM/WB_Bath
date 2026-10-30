@@ -4,9 +4,8 @@ from __future__ import annotations
 
 from typing import Optional
 
-import io_config as cfg
-from io_config import VentMode
-
+from . import io_config as cfg
+from .io_config import VentMode
 from .gateway import BaseGateway
 
 

@@ -1,6 +1,6 @@
 import json
 
-import io_config as cfg
+from bath import io_config as cfg
 
 from bath.api import TOPIC_INFO, TOPIC_STATE
 

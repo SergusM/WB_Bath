@@ -11,8 +11,8 @@ import queue
 from collections import OrderedDict
 from typing import Dict, Iterable, List, NamedTuple, Optional, Set, Tuple
 
-import io_config as cfg
-from io_config import Relay
+from . import io_config as cfg
+from .io_config import Relay
 
 log = logging.getLogger(__name__)
 

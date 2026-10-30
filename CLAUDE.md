@@ -9,17 +9,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 python -m pytest                                   # все тесты (брокер не нужен)
 python -m pytest tests/test_heating.py::test_hysteresis   # один тест
-python io_config.py                                # самопроверка конфигурации: дубли топиков, таблица уставок
+python -m bath.io_config                           # самопроверка конфигурации: дубли топиков, таблица уставок
 python3 -m bath.main --host <адрес WB> -v          # запуск против живого брокера
 ```
 
-Сборки и линтера нет. `pytest.ini` задаёт `pythonpath = .`, поэтому `import io_config` работает из корня. Сервис тоже запускается из корня (`WorkingDirectory` в `deploy/wb-bath.service`).
+Сборки и линтера нет. `pytest.ini` задаёт `pythonpath = .`, поэтому пакет `bath` импортируется из корня. Сервис тоже запускается из корня (`WorkingDirectory` в `deploy/wb-bath.service`). Внутри пакета конфигурация импортируется относительно (`from . import io_config as cfg`), в тестах — `from bath import io_config as cfg`.
 
 На контроллере стоит Python 3.9 (Debian 11). Синтаксис `X | Y` и `match` использовать нельзя. В модулях стоит `from __future__ import annotations`. python2wb требует `paho-mqtt<2`.
 
 ## Источники истины
 
-- `io_config.py` — всё железо (реле, входы, датчики, зоны нагрева), уставки пресетов и все константы времени и пределов. Логики в нём нет. Новые параметры добавляются сюда, а не в модули `bath/`.
+- `bath/io_config.py` — всё железо (реле, входы, датчики, зоны нагрева), уставки пресетов и все константы времени и пределов. Логики в нём нет. Новые параметры добавляются сюда, а не в остальные модули `bath/`.
 - `IO_list.md` и `UI_vs_flows.md` — разбор старого потока и старого `html/index.html`, включая список ошибок. Эти ошибки в новой логике намеренно исправлены. Не возвращайте старое поведение «для совместимости».
 - `html/` — старый интерфейс. Новый код его не обслуживает.
 

@@ -12,8 +12,8 @@ import os
 from dataclasses import asdict, dataclass, field, fields
 from typing import Dict, List, Optional
 
-import io_config as cfg
-from io_config import Room, RoomSetpoints
+from . import io_config as cfg
+from .io_config import Room, RoomSetpoints
 
 log = logging.getLogger(__name__)
 

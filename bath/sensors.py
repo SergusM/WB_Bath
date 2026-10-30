@@ -5,9 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, Iterable, Optional
 
-import io_config as cfg
-from io_config import TempSensor
-
+from . import io_config as cfg
+from .io_config import TempSensor
 from .gateway import path
 
 OK = "ok"

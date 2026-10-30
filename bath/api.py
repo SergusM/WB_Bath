@@ -15,9 +15,8 @@ import logging
 from dataclasses import asdict
 from typing import TYPE_CHECKING, Callable, Dict, Optional
 
-import io_config as cfg
-from io_config import Preset, Room, VentMode, ZoneKind
-
+from . import io_config as cfg
+from .io_config import Preset, Room, VentMode, ZoneKind
 from .heating import MANUAL
 from .storage import ROOM_KEYS, ROOMS_BY_KEY, WEEKDAYS
 

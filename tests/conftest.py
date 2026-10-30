@@ -3,7 +3,7 @@ from datetime import datetime
 
 import pytest
 
-import io_config as cfg
+from bath import io_config as cfg
 from bath.controller import BathController
 from bath.gateway import Event, FakeGateway, path
 from bath.storage import SettingsStore

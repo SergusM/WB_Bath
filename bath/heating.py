@@ -5,9 +5,8 @@ from __future__ import annotations
 import dataclasses
 from typing import Callable, Dict, Optional, Union
 
-import io_config as cfg
-from io_config import HeatZone, Preset, Room, RoomSetpoints, ZoneKind
-
+from . import io_config as cfg
+from .io_config import HeatZone, Preset, Room, RoomSetpoints, ZoneKind
 from .alarms import AlarmLog
 from .gateway import BaseGateway, path
 from .sensors import ERROR, STALE, Reading, SensorStore
