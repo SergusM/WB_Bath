@@ -379,8 +379,8 @@ VENT_PATTERNS = {
 # Освещение
 # ---------------------------------------------------------------------------
 
-R_SCONCE_STEAM = Relay("wb-gpio", "EXT3_K12", "Бра парной")
-R_SCONCE_SPA = Relay("wb-gpio", "EXT3_K13", "Бра СПА")
+R_LIGHT_STEAM = Relay("wb-gpio", "EXT3_K12", "Бра парной")
+R_LIGHT_SPA = Relay("wb-gpio", "EXT3_K13", "Бра СПА")
 
 RGB_SPA = (
     Relay("wb-mr6c_223", "K1", "RGB СПА R"),
@@ -406,14 +406,14 @@ RGB_MODES = [
 ]
 
 # Режимы бра по кругу: (бра СПА, бра парной)
-SCONCE_MODES = [
+LIGHT_MODES = [
     (0, 0),  # выкл
     (1, 1),  # оба
     (1, 0),  # только СПА
     (0, 1),  # только парная
 ]
 
-LIGHT_RELAYS = [R_SCONCE_STEAM, R_SCONCE_SPA, *RGB_SPA, *RGB_STEAM]
+LIGHT_RELAYS = [R_LIGHT_STEAM, R_LIGHT_SPA, *RGB_SPA, *RGB_STEAM]
 
 
 # ---------------------------------------------------------------------------
@@ -431,10 +431,10 @@ R_ALWAYS_ON = Relay("wb-gpio", "EXT2_K1", "Всегда включено")
 # Прочие кнопки
 # ---------------------------------------------------------------------------
 
-BTN_SCONCE_STEAM = Button("Бра парной", Input("wb-gpio", "EXT1_IN9"),
-                          (R_SCONCE_STEAM,))
-BTN_SCONCE = Button("Бра (переключение режимов)", Input("wb-gpio", "EXT1_IN10"),
-                    (R_SCONCE_SPA, R_SCONCE_STEAM))
+BTN_LIGHT_STEAM = Button("Бра парной", Input("wb-gpio", "EXT1_IN9"),
+                          (R_LIGHT_STEAM,))
+BTN_LIGHT_SPA = Button("Бра (переключение режимов)", Input("wb-gpio", "EXT1_IN10"),
+                        (R_LIGHT_SPA, R_LIGHT_STEAM))
 BTN_RGB_STEAM = Button("RGB парной", Input("wb-gpio", "EXT1_IN11"), RGB_STEAM)
 BTN_RGB_SPA = Button("RGB СПА", Input("wb-gpio", "EXT1_IN12"), RGB_SPA)
 BTN_MASTER = Button("Мастер-клавиша", Input("wb-gpio", "EXT1_IN13"))
@@ -469,7 +469,7 @@ ALL_TEMP_SENSORS = [z.sensor for z in ALL_ZONES] + [T_TEST_BLOCK]
 
 ALL_BUTTONS = (
     [b for room in VENT_BUTTONS.values() for b in room.values()]
-    + [BTN_SCONCE_STEAM, BTN_SCONCE, BTN_RGB_STEAM, BTN_RGB_SPA,
+    + [BTN_LIGHT_STEAM, BTN_LIGHT_SPA, BTN_RGB_STEAM, BTN_RGB_SPA,
        BTN_MASTER, BTN_ZAPARNIK, BTN_FACE_FAN, BTN_WATERFALL]
 )
 

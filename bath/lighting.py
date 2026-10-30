@@ -21,27 +21,27 @@ class LightController:
 
     def __init__(self, gw: BaseGateway):
         self.gw = gw
-        self.sconce = 0                                   # индекс SCONCE_MODES
+        self.light = 0                                    # индекс LIGHT_MODES
         self.rgb: Dict[Room, int] = {Room.SPA: 0, Room.STEAM: 0}   # индекс RGB_MODES
         self.masked = False
 
     @property
     def scene_on(self) -> bool:
-        return self.sconce != 0 or any(self.rgb.values())
+        return self.light != 0 or any(self.rgb.values())
 
     # --- бра -------------------------------------------------------------
 
-    def sconce_next(self) -> None:
+    def light_next(self) -> None:
         self.masked = False
-        self.sconce = (self.sconce + 1) % len(cfg.SCONCE_MODES)
+        self.light = (self.light + 1) % len(cfg.LIGHT_MODES)
 
-    def set_sconce(self, spa: bool, steam: bool) -> None:
+    def set_light(self, spa: bool, steam: bool) -> None:
         self.masked = False
-        self.sconce = cfg.SCONCE_MODES.index((int(bool(spa)), int(bool(steam))))
+        self.light = cfg.LIGHT_MODES.index((int(bool(spa)), int(bool(steam))))
 
-    def sconce_steam_toggle(self) -> None:
-        spa, steam = cfg.SCONCE_MODES[self.sconce]
-        self.set_sconce(spa, not steam)
+    def light_steam_toggle(self) -> None:
+        spa, steam = cfg.LIGHT_MODES[self.light]
+        self.set_light(spa, not steam)
 
     # --- RGB -------------------------------------------------------------
 
@@ -69,18 +69,18 @@ class LightController:
         elif self.scene_on:
             self.masked = True
         else:
-            self.sconce = cfg.SCONCE_MODES.index((1, 1))
+            self.light = cfg.LIGHT_MODES.index((1, 1))
             self.rgb = {room: RGB_WHITE for room in self.rgb}
 
     def all_off(self) -> None:
-        self.sconce = 0
+        self.light = 0
         self.rgb = {room: 0 for room in self.rgb}
         self.masked = False
 
     def apply(self) -> None:
-        spa, steam = (0, 0) if self.masked else cfg.SCONCE_MODES[self.sconce]
-        self.gw.set_relay(cfg.R_SCONCE_SPA, spa)
-        self.gw.set_relay(cfg.R_SCONCE_STEAM, steam)
+        spa, steam = (0, 0) if self.masked else cfg.LIGHT_MODES[self.light]
+        self.gw.set_relay(cfg.R_LIGHT_SPA, spa)
+        self.gw.set_relay(cfg.R_LIGHT_STEAM, steam)
         for room, relays in RGB_RELAYS.items():
             colors = cfg.RGB_MODES[0 if self.masked else self.rgb[room]]
             for relay, on in zip(relays, colors):

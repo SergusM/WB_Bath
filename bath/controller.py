@@ -69,9 +69,9 @@ class BathController:
                                  cfg.LONG_PRESS_RGB_S,
                                  lambda now: self.light.rgb_off(room))
 
-        b[path(cfg.BTN_SCONCE_STEAM.input)] = ButtonTracker(
-            lambda now: self.light.sconce_steam_toggle())
-        b[path(cfg.BTN_SCONCE.input)] = ButtonTracker(lambda now: self.light.sconce_next())
+        b[path(cfg.BTN_LIGHT_STEAM.input)] = ButtonTracker(
+            lambda now: self.light.light_steam_toggle())
+        b[path(cfg.BTN_LIGHT_SPA.input)] = ButtonTracker(lambda now: self.light.light_next())
         b[path(cfg.BTN_RGB_STEAM.input)] = rgb(Room.STEAM)
         b[path(cfg.BTN_RGB_SPA.input)] = rgb(Room.SPA)
         b[path(cfg.BTN_MASTER.input)] = ButtonTracker(

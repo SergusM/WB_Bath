@@ -109,13 +109,13 @@ class CommandApi:
             "vent_set": lambda d, now: c.vent.set(_vent_mode(d), d.get("stage"), now),
             "face_fan": lambda d, now: c.face_fan.set(_opt_bool(d, "on"), now),
             # свет
-            "sconce_next": lambda d, now: c.light.sconce_next(),
-            "set_sconce": lambda d, now: c.light.set_sconce(_arg(d, "spa"), _arg(d, "steam")),
+            "light_next": lambda d, now: c.light.light_next(),
+            "set_light": lambda d, now: c.light.set_light(_arg(d, "spa"), _arg(d, "steam")),
             "rgb_next": lambda d, now: c.light.rgb_next(_room(d)),
             "set_rgb": lambda d, now: c.light.set_rgb(_room(d), _arg(d, "mode")),
             "rgb_off": lambda d, now: c.light.rgb_off(_room(d)),
             "master": lambda d, now: c.light.master(),
-            "light_off": lambda d, now: c.light.all_off(),
+            "all_light_off": lambda d, now: c.light.all_off(),
             # обливное
             "waterfall_pour": lambda d, now: c.waterfall.pour(now, d.get("duration")),
             "waterfall_stop": lambda d, now: c.waterfall.stop(),
@@ -171,7 +171,7 @@ def build_state(ctl: "BathController", now: float) -> dict:
             "relay_actual": ctl.gw.actual(z.relay),
         })
     test = ctl.sensors.get(cfg.T_TEST_BLOCK, now)
-    sconce_spa, sconce_steam = cfg.SCONCE_MODES[ctl.light.sconce]
+    light_spa, light_steam = cfg.LIGHT_MODES[ctl.light.light]
     return {
         "heating": {
             ROOM_KEYS[room]: {
@@ -189,7 +189,7 @@ def build_state(ctl: "BathController", now: float) -> dict:
         },
         "face_fan": {"on": ctl.face_fan.on, "left_s": _seconds(ctl.face_fan.left(now))},
         "light": {
-            "sconce": {"spa": bool(sconce_spa), "steam": bool(sconce_steam)},
+            "light": {"spa": bool(light_spa), "steam": bool(light_steam)},
             "rgb": {ROOM_KEYS[r]: m for r, m in ctl.light.rgb.items()},
             "masked": ctl.light.masked,
         },

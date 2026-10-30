@@ -61,9 +61,9 @@ ssh root@<wb> "cd /mnt/data/wb_bath && pip3 install -r requirements.txt && cp de
 | `vent_press` | `mode`: `STEAMING`, `STEAM_SHOWER`, `NATURAL`, `AIRING` (как физическая кнопка) |
 | `vent_set` | `mode`, `stage` (1–4 для `STEAM_SHOWER`) |
 | `face_fan`, `zaparnik` | `on` (без него — переключить) |
-| `sconce_next` / `set_sconce` | — / `spa`, `steam` |
+| `light_next` / `set_light` | — / `spa`, `steam` |
 | `rgb_next` / `set_rgb` / `rgb_off` | `room` / `room`, `mode` 0–7 / `room` |
-| `master`, `light_off` | — |
+| `master`, `all_light_off` | — |
 | `waterfall_pour` | `duration` (с, необязательно) |
 | `waterfall_stop` | — |
 | `waterfall_set_duration` | `duration` |

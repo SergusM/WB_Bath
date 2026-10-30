@@ -67,12 +67,12 @@ def rgb(rig, room):
     return tuple(int(rig.on(r)) for r in RGB_RELAYS[room])
 
 
-def test_sconce_cycle(rig):
+def test_light_cycle(rig):
     seen = []
     for _ in range(4):
-        rig.press(cfg.BTN_SCONCE)
-        seen.append((int(rig.on(cfg.R_SCONCE_SPA)), int(rig.on(cfg.R_SCONCE_STEAM))))
-    assert seen == cfg.SCONCE_MODES[1:] + cfg.SCONCE_MODES[:1]
+        rig.press(cfg.BTN_LIGHT_SPA)
+        seen.append((int(rig.on(cfg.R_LIGHT_SPA)), int(rig.on(cfg.R_LIGHT_STEAM))))
+    assert seen == cfg.LIGHT_MODES[1:] + cfg.LIGHT_MODES[:1]
 
 
 def test_rgb_short_and_long_press(rig):
@@ -95,20 +95,20 @@ def test_rgb_cycle_skips_off(rig):
 
 def test_master_key(rig):
     rig.press(cfg.BTN_MASTER)                      # всё было выкл -> включить всё
-    assert rig.on(cfg.R_SCONCE_SPA) and rig.on(cfg.R_SCONCE_STEAM)
+    assert rig.on(cfg.R_LIGHT_SPA) and rig.on(cfg.R_LIGHT_STEAM)
     assert rgb(rig, Room.SPA) == (1, 1, 1)
     rig.cmd(cmd="set_rgb", room="steam", mode=4)
     rig.press(cfg.BTN_MASTER)                      # погасить, сцену запомнить
-    assert not rig.on(cfg.R_SCONCE_SPA) and rgb(rig, Room.STEAM) == (0, 0, 0)
+    assert not rig.on(cfg.R_LIGHT_SPA) and rgb(rig, Room.STEAM) == (0, 0, 0)
     assert rig.ctl.light.masked
     rig.press(cfg.BTN_MASTER)                      # вернуть сцену
-    assert rig.on(cfg.R_SCONCE_SPA) and rgb(rig, Room.STEAM) == (0, 0, 1)
+    assert rig.on(cfg.R_LIGHT_SPA) and rgb(rig, Room.STEAM) == (0, 0, 1)
 
 
 def test_master_long_press_offoff(rig):
     rig.temps(20)
     rig.cmd(cmd="set_preset", room="steam", preset="steam_bath")
-    rig.cmd(cmd="sconce_next")
+    rig.cmd(cmd="light_next")
     rig.cmd(cmd="vent_press", mode="NATURAL")
     rig.flush_all()
     rig.press(cfg.BTN_MASTER, hold=cfg.LONG_PRESS_MASTER_S + 0.1)
