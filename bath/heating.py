@@ -94,7 +94,8 @@ class HeatingController:
             over = reading.temp is not None and reading.temp > zone.max_temp
             self.alarms.set(
                 f"overheat:{path(zone.relay)}", over,
-                f"Перегрев «{zone.relay.name}»: {reading.temp} °C > {zone.max_temp} °C")
+                f"Перегрев «{zone.relay.name}»: {reading.temp:.0f} °C > {zone.max_temp:.0f} °C"
+                if over else "")
 
             demand = hysteresis(self.setpoint(zone), reading.temp,
                                 self._demand.get(zone, False), zone.hysteresis)

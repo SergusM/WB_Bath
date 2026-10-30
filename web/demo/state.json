@@ -1,0 +1,414 @@
+{
+ "heating": {
+  "spa": {
+   "mode": "SPA",
+   "setpoints": {
+    "floor": 42,
+    "bench": 42,
+    "wall_low": 48,
+    "wall_mid": 52,
+    "wall_top": 56,
+    "ceiling": 58,
+    "stove": 0
+   },
+   "manual": {
+    "floor": 0,
+    "bench": 0,
+    "wall_low": 0,
+    "wall_mid": 0,
+    "wall_top": 0,
+    "ceiling": 0,
+    "stove": 0
+   }
+  },
+  "steam": {
+   "mode": "russian_bath",
+   "setpoints": {
+    "floor": 42,
+    "bench": 42,
+    "wall_low": 54,
+    "wall_mid": 66,
+    "wall_top": 76,
+    "ceiling": 80,
+    "stove": 450
+   },
+   "manual": {
+    "floor": 40.0,
+    "bench": 45.0,
+    "wall_low": 50.0,
+    "wall_mid": 60.0,
+    "wall_top": 70.0,
+    "ceiling": 75.0,
+    "stove": 400.0
+   }
+  }
+ },
+ "zones": [
+  {
+   "index": 0,
+   "name": "Лежак 1",
+   "title": "Нагрев: СПА, лежак 1",
+   "room": "spa",
+   "kind": "BENCH",
+   "temp": 41.0,
+   "status": "ok",
+   "setpoint": 42,
+   "heating": false,
+   "relay_actual": false
+  },
+  {
+   "index": 1,
+   "name": "Лежак 2",
+   "title": "Нагрев: СПА, лежак 2",
+   "room": "spa",
+   "kind": "BENCH",
+   "temp": 44.0,
+   "status": "ok",
+   "setpoint": 42,
+   "heating": false,
+   "relay_actual": false
+  },
+  {
+   "index": 2,
+   "name": "Лежак 3",
+   "title": "Нагрев: СПА, лежак 3",
+   "room": "spa",
+   "kind": "BENCH",
+   "temp": 40.0,
+   "status": "ok",
+   "setpoint": 42,
+   "heating": true,
+   "relay_actual": false
+  },
+  {
+   "index": 3,
+   "name": "Лежак 4",
+   "title": "Нагрев: СПА, лежак 4",
+   "room": "spa",
+   "kind": "BENCH",
+   "temp": 43.0,
+   "status": "ok",
+   "setpoint": 42,
+   "heating": false,
+   "relay_actual": false
+  },
+  {
+   "index": 4,
+   "name": "Лежак 5",
+   "title": "Нагрев: СПА, лежак 5",
+   "room": "spa",
+   "kind": "BENCH",
+   "temp": null,
+   "status": "error",
+   "setpoint": 42,
+   "heating": false,
+   "relay_actual": false
+  },
+  {
+   "index": 5,
+   "name": "Лежак 6",
+   "title": "Нагрев: СПА, лежак 6",
+   "room": "spa",
+   "kind": "BENCH",
+   "temp": 45.0,
+   "status": "ok",
+   "setpoint": 42,
+   "heating": false,
+   "relay_actual": false
+  },
+  {
+   "index": 6,
+   "name": "Пол",
+   "title": "Нагрев: СПА, пол",
+   "room": "spa",
+   "kind": "FLOOR",
+   "temp": 39.0,
+   "status": "ok",
+   "setpoint": 42,
+   "heating": true,
+   "relay_actual": false
+  },
+  {
+   "index": 7,
+   "name": "Стена низ",
+   "title": "Нагрев: СПА, стена низ",
+   "room": "spa",
+   "kind": "WALL_LOW",
+   "temp": 50.0,
+   "status": "ok",
+   "setpoint": 48,
+   "heating": false,
+   "relay_actual": false
+  },
+  {
+   "index": 8,
+   "name": "Стена середина",
+   "title": "Нагрев: СПА, стена середина",
+   "room": "spa",
+   "kind": "WALL_MID",
+   "temp": 63.0,
+   "status": "ok",
+   "setpoint": 52,
+   "heating": false,
+   "relay_actual": false
+  },
+  {
+   "index": 9,
+   "name": "Стена верх",
+   "title": "Нагрев: СПА, стена верх",
+   "room": "spa",
+   "kind": "WALL_TOP",
+   "temp": 77.0,
+   "status": "ok",
+   "setpoint": 56,
+   "heating": false,
+   "relay_actual": false
+  },
+  {
+   "index": 10,
+   "name": "Потолок 1 (душ)",
+   "title": "Нагрев: СПА, потолок 1 (душ)",
+   "room": "spa",
+   "kind": "CEILING",
+   "temp": 74.0,
+   "status": "ok",
+   "setpoint": 58,
+   "heating": false,
+   "relay_actual": false
+  },
+  {
+   "index": 11,
+   "name": "Потолок 2",
+   "title": "Нагрев: СПА, потолок 2",
+   "room": "spa",
+   "kind": "CEILING",
+   "temp": 74.0,
+   "status": "ok",
+   "setpoint": 58,
+   "heating": false,
+   "relay_actual": false
+  },
+  {
+   "index": 12,
+   "name": "Лежак 1",
+   "title": "Нагрев: парная, лежак 1",
+   "room": "steam",
+   "kind": "BENCH",
+   "temp": 41.0,
+   "status": "ok",
+   "setpoint": 42,
+   "heating": false,
+   "relay_actual": false
+  },
+  {
+   "index": 13,
+   "name": "Лежак 2",
+   "title": "Нагрев: парная, лежак 2",
+   "room": "steam",
+   "kind": "BENCH",
+   "temp": 44.0,
+   "status": "ok",
+   "setpoint": 42,
+   "heating": false,
+   "relay_actual": false
+  },
+  {
+   "index": 14,
+   "name": "Лежак 3",
+   "title": "Нагрев: парная, лежак 3",
+   "room": "steam",
+   "kind": "BENCH",
+   "temp": 40.0,
+   "status": "ok",
+   "setpoint": 42,
+   "heating": true,
+   "relay_actual": false
+  },
+  {
+   "index": 15,
+   "name": "Пол",
+   "title": "Нагрев: парная, пол",
+   "room": "steam",
+   "kind": "FLOOR",
+   "temp": 39.0,
+   "status": "ok",
+   "setpoint": 42,
+   "heating": true,
+   "relay_actual": false
+  },
+  {
+   "index": 16,
+   "name": "Стена низ",
+   "title": "Нагрев: парная, стена низ",
+   "room": "steam",
+   "kind": "WALL_LOW",
+   "temp": 50.0,
+   "status": "ok",
+   "setpoint": 54,
+   "heating": true,
+   "relay_actual": false
+  },
+  {
+   "index": 17,
+   "name": "Стена середина",
+   "title": "Нагрев: парная, стена середина",
+   "room": "steam",
+   "kind": "WALL_MID",
+   "temp": 63.0,
+   "status": "ok",
+   "setpoint": 66,
+   "heating": true,
+   "relay_actual": false
+  },
+  {
+   "index": 18,
+   "name": "Стена верх",
+   "title": "Нагрев: парная, стена верх",
+   "room": "steam",
+   "kind": "WALL_TOP",
+   "temp": 77.0,
+   "status": "ok",
+   "setpoint": 76,
+   "heating": false,
+   "relay_actual": false
+  },
+  {
+   "index": 19,
+   "name": "Потолок",
+   "title": "Нагрев: парная, потолок",
+   "room": "steam",
+   "kind": "CEILING",
+   "temp": 74.0,
+   "status": "ok",
+   "setpoint": 80,
+   "heating": true,
+   "relay_actual": false
+  },
+  {
+   "index": 20,
+   "name": "Запарник",
+   "title": "Запарник, нагрев",
+   "room": null,
+   "kind": null,
+   "temp": 118.0,
+   "status": "ok",
+   "setpoint": 130.0,
+   "heating": true,
+   "relay_actual": false
+  },
+  {
+   "index": 22,
+   "name": "Испаритель",
+   "title": "Испаритель",
+   "room": "steam",
+   "kind": "STOVE",
+   "temp": 385.0,
+   "status": "ok",
+   "setpoint": 450,
+   "heating": true,
+   "relay_actual": false
+  },
+  {
+   "index": 23,
+   "name": "Парогенератор",
+   "title": "Парогенератор",
+   "room": "steam",
+   "kind": "STOVE",
+   "temp": 385.0,
+   "status": "ok",
+   "setpoint": 450,
+   "heating": true,
+   "relay_actual": false
+  }
+ ],
+ "test_block": {
+  "temp": 24.0,
+  "status": "ok"
+ },
+ "vent": {
+  "mode": "STEAM_SHOWER",
+  "stage": 2,
+  "airing_left_s": null
+ },
+ "face_fan": {
+  "on": false,
+  "left_s": null
+ },
+ "light": {
+  "light": {
+   "spa": true,
+   "steam": false
+  },
+  "rgb": {
+   "spa": 4,
+   "steam": 0
+  },
+  "masked": false
+ },
+ "waterfall": {
+  "active": false,
+  "left_s": null,
+  "duration": 7,
+  "schedule": {
+   "enabled": true,
+   "times": [
+    "09:00",
+    "21:30"
+   ],
+   "days": [
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri"
+   ]
+  }
+ },
+ "zaparnik": {
+  "on": true
+ },
+ "alarms": {
+  "active": [
+   {
+    "key": "sensor:wb-mai6_106/IN 5 Temperature",
+    "message": "Датчик «СПА, лежак 5»: ошибка r",
+    "since": "2026-10-30T19:31:00",
+    "cleared": "",
+    "acked": false
+   }
+  ],
+  "history": [
+   {
+    "key": "sensor:wb-mai6_106/IN 5 Temperature",
+    "message": "Датчик «СПА, лежак 5»: ошибка r",
+    "since": "2026-10-30T19:31:00",
+    "cleared": "",
+    "acked": false
+   },
+   {
+    "key": "overheat:wb-mr6c_151/K5",
+    "message": "Перегрев «Испаритель»: 472 °C > 470 °C",
+    "since": "2026-10-30T18:05:00",
+    "cleared": "2026-10-30T18:07:00",
+    "acked": false
+   }
+  ],
+  "unacked": 2
+ },
+ "energy": {
+  "Total AP energy": 12840.6,
+  "AP energy L1": 4301.2,
+  "AP energy L2": 4288.9,
+  "AP energy L3": 4250.5,
+  "Urms L1": 228.4,
+  "Urms L2": 231.1,
+  "Urms L3": 229.0,
+  "Irms L1": 26.7,
+  "Irms L2": 27.2,
+  "Irms L3": 26.3,
+  "Total P": 18420,
+  "P L1": 6110,
+  "P L2": 6290,
+  "P L3": 6020
+ }
+}

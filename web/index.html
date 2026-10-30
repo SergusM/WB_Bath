@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1b1a18">
+  <title>Баня</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="css/app.css?v=1">
+</head>
+<body>
+  <div class="app" id="app" data-link="broker">
+    <header class="top">
+      <span class="link" id="link"><span class="dot"></span><span id="link-text">подключение…</span></span>
+      <span class="clock" id="clock"></span>
+      <span class="spacer"></span>
+      <button class="alarm-badge" id="alarm-badge" hidden></button>
+      <button class="btn danger-outline ctl" id="offoff" title="Нагрев, свет, фен, запарник и обливное">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v9M6.3 6.3a8 8 0 1 0 11.4 0"/></svg>
+        <span>Выключить всё</span>
+      </button>
+    </header>
+
+    <nav class="nav" id="nav">
+      <a href="#heat" data-view="heat">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21c-4 0-7-2.7-7-6.5 0-3 2-5 3.5-6.5.3 2 1.5 3 2.5 3.5C11 8 12 5 14 3c.5 3 5 5.5 5 11 0 4-3 7-7 7z"/></svg>
+        <span>Нагрев</span></a>
+      <a href="#climate" data-view="climate">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/></svg>
+        <span>Климат</span></a>
+      <a href="#light" data-view="light">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>
+        <span>Свет</span></a>
+      <a href="#water" data-view="water">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>
+        <span>Обливное</span></a>
+      <a href="#journal" data-view="journal">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>
+        <span>Журнал</span></a>
+    </nav>
+
+    <main class="main">
+      <div class="card muted" id="waiting">Ждём данные от контроллера. Если это затянулось, проверьте индикатор связи в левом верхнем углу.</div>
+      <section class="view" id="view-heat" data-view="heat"></section>
+      <section class="view" id="view-climate" data-view="climate"></section>
+      <section class="view" id="view-light" data-view="light"></section>
+      <section class="view" id="view-water" data-view="water"></section>
+      <section class="view" id="view-journal" data-view="journal"></section>
+    </main>
+  </div>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+  <div class="dialog-backdrop" id="dialog" hidden>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-text">
+      <p id="dialog-text"></p>
+      <div class="dialog-actions">
+        <button class="btn" id="dialog-cancel">Отмена</button>
+        <button class="btn danger" id="dialog-ok">Выключить</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="vendor/mqtt.min.js"></script>
+  <script src="js/config.js?v=1"></script>
+  <script src="js/ui.js?v=1"></script>
+  <script src="js/transport.js?v=1"></script>
+  <script src="js/demo.js?v=1"></script>
+  <script src="js/store.js?v=1"></script>
+  <script src="js/views/heating.js?v=1"></script>
+  <script src="js/views/climate.js?v=1"></script>
+  <script src="js/views/light.js?v=1"></script>
+  <script src="js/views/waterfall.js?v=1"></script>
+  <script src="js/views/journal.js?v=1"></script>
+  <script src="js/app.js?v=1"></script>
+</body>
+</html>

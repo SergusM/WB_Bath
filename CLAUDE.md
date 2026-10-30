@@ -11,6 +11,7 @@ python -m pytest                                   # все тесты (брок
 python -m pytest tests/test_heating.py::test_hysteresis   # один тест
 python -m bath.io_config                           # самопроверка конфигурации: дубли топиков, таблица уставок
 python3 -m bath.main --host <адрес WB> -v          # запуск против живого брокера
+python tools/gen_web_demo.py                       # демо-данные для web/?demo
 ```
 
 Сборки и линтера нет. `pytest.ini` задаёт `pythonpath = .`, поэтому пакет `bath` импортируется из корня. Сервис тоже запускается из корня (`WorkingDirectory` в `deploy/wb-bath.service`). Внутри пакета конфигурация импортируется относительно (`from . import io_config as cfg`), в тестах — `from bath import io_config as cfg`.
@@ -55,6 +56,15 @@ python3 -m bath.main --host <адрес WB> -v          # запуск прот�
 - `online`.
 
 Виртуальные устройства WB намеренно не создаются. Команды и аргументы описаны в `README.md`. При изменении состава команд обновляйте README и `ALL_COMMANDS_OK` в `tests/test_api.py`: тест проверяет, что покрыты все `handlers`.
+
+## Веб-интерфейс (`web/`)
+
+- Статические файлы без сборки и фреймворка. Скрипты подключаются обычными `<script>` в `index.html`, без ES-модулей. Синтаксис не новее ES2017: интерфейс работает на старых настенных планшетах.
+- Браузер сам подключается к mosquitto WB по MQTT over WebSocket через `vendor/mqtt.min.js` (mqtt.js 4.3.8, локальная копия, интернета на объекте нет). Своего бэкенда у интерфейса нет, только MQTT API.
+- `store.js`: последние `state`/`info`, статус связи, `send(cmd, args)` → Promise, который ждёт `/app/ack` с тем же `id`. Разделы в `js/views/*.js` строят DOM один раз и потом обновляют его на месте (`update(state, info)`). Так обновления состояния не сбивают ввод: степперы, ползунок, черновик расписания.
+- Новая команда в `CommandApi.handlers` добавляется и в интерфейс, и в упрощённую модель `js/demo.js`.
+- Демо: `index.html?demo` берёт `web/demo/*.json` из `tools/gen_web_demo.py`. Перегенерируйте их после изменения `build_state()` или `build_info()`. Для просмотра есть конфигурация `web` в `.claude/launch.json`.
+- После правок в `web/` увеличивайте `?v=N` у CSS и JS в `index.html`, иначе браузер берёт старые файлы из кэша.
 
 ## Тесты
 
