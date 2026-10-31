@@ -1,4 +1,4 @@
-# Веб-интерфейс (`html/index.html`) и Node-RED (`flows.json`)
+# Веб-интерфейс (`html_old/index.html`) и Node-RED (`flows.json`)
 
 ## 1. Транспорт
 

@@ -1,4 +1,4 @@
-"""Снимки /app/state и /app/info для демо-режима веб-интерфейса (web/?demo).
+"""Снимки /app/state и /app/info для демо-режима веб-интерфейса (html/?demo).
 
 Поднимает настоящий BathController на FakeGateway, задаёт правдоподобные
 температуры и режимы и сохраняет то, что контроллер опубликовал бы в MQTT:
@@ -25,7 +25,7 @@ from bath.controller import BathController  # noqa: E402
 from bath.gateway import Event, FakeGateway, path  # noqa: E402
 from bath.storage import SettingsStore  # noqa: E402
 
-OUT_DIR = os.path.join(ROOT, "web", "demo")
+OUT_DIR = os.path.join(ROOT, "html", "demo")
 
 # Температура зоны по типу поверхности: часть зон ниже уставки (греются),
 # часть выше (держат)
